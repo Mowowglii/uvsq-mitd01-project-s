@@ -1,6 +1,23 @@
 import tkinter as tk
 
 #Functions
+def px_to_index(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->list[int,int]:
+    """Convert Pix Position in Canvas to index in grid
+
+    Args:
+        x_pos (int): Position x
+        y_pos (int): Position y
+        row (int): Number of row
+        column (int): Number of column
+        canwidth (int): Width of Canva
+        canheight (int): Height of Canva
+        canborder (int, optional): Canva border thickness. Defaults to 0.
+
+    Returns:
+        list[int,int]: [x_index, y_index]
+    """
+    return [int(x_pos//((canwidth+canborder)/column)), int(y_pos//((canheight+canborder)/row))]
+
 def slicecanvas(canva:tk.Canvas,rows:int,column:int,canvawidth:int,canvaheight:int):
     """Slice a Canva into rows x column parcels
 
@@ -13,17 +30,33 @@ def slicecanvas(canva:tk.Canvas,rows:int,column:int,canvawidth:int,canvaheight:i
     """
     Lparcel=canvawidth//column
     Hparcel=canvaheight//rows
-    parcelmatrix=[]
     for r in range(rows):
         for c in range(column):
             x1=c*Lparcel+7
             y1=r*Hparcel+7
-            x2=x1+Lparcel
-            y2=y1+Hparcel
-            parcel_id=canva.create_rectangle(x1, y1, x2, y2, outline="black")
-            parcelmatrix.append(parcel_id)
-    return parcelmatrix
+            if (x1==(canvawidth/3)+7 and y1==(canvaheight/3)+7) or (x1==2*(canvawidth/3)+7 and y1==2*(canvaheight/3)+7):
+                canva.create_line(x1, 7, x1, canvaheight+7, width=3)
+                canva.create_line(7,y1,canvawidth+7,y1, width=3)
+            else:
+                canva.create_line(x1, 7, x1, canvaheight+7)
+                canva.create_line(7,y1,canvawidth+7,y1)
 
+def playgridS(event=tk.Event):
+    """The goal of this function is to do the link between the display and the empty grid
+
+    Args:
+        event (tk.Event, optional): The event generated (here is click)
+    """
+    print(f'Click on Playgrid : {px_to_index(event.x, event.y, 9, 9, 702, 702, 7)}')
+    
+def selectcanvS(event=tk.Event):
+    """The goal of this function is to lock user number selection from clicking in the selection grid
+
+    Args:
+        event (tk.Event, optional): The event generated (here is click)
+    """
+    print(f'Click in Selectgrid : {px_to_index(event.x, event.y, 3, 3, 225, 225, 7)}')
+    
 def newg_closed():
     """This function put menu back and destroy newg_window
     """
@@ -32,9 +65,8 @@ def newg_closed():
     root.deiconify()
     new_game_window.destroy()
 
-def newg_window():
-    """Create a new window from new game button
-    """
+def game_window():
+    """Create a Sudoku Game Window"""
     global root
     global new_game_window
     root.iconify()
@@ -50,30 +82,73 @@ def newg_window():
 
     #Widgets on Frame
     playcanv=tk.Canvas(newg_frame, width=702, height=702, borderwidth=5, relief="sunken")
-    selectbcanv=tk.Canvas(newg_frame,width=225,height=225,borderwidth=5, relief="sunken")
-    infocanv=tk.Canvas(newg_frame, width=225, height=225, borderwidth=5, relief="ridge")
+    selectbcanv=tk.Canvas(newg_frame, width=225, height=225, borderwidth=5, relief="sunken")
+    extracanv=tk.Canvas(newg_frame, width=225, height=225, borderwidth=5, relief="ridge")
     
-    #Slicing Play Canva for Grid Display
-    playitem=slicecanvas(playcanv, 9, 9, 702, 702)
-    for l in range(1,3):
-        for h in range(1,3):
-            playcanv.create_line(l*(702/3)+7,7,l*(702/3)+7,709,width=3)
-            playcanv.create_line(7,h*(702/3)+7,709,h*(702/3)+7,width=3)
+    #Extra Canva Configuration
+    extracanv.grid_propagate(False)
+    extracanv.grid_propagate(False)
+    for c in range(3):
+        extracanv.grid_columnconfigure(c, weight=1)
+    for r in range(3):
+        extracanv.grid_rowconfigure(r, weight=1)
     
     #Select Canva Configuration
+    selectbcanv.grid_propagate(False)
     selectbcanv.grid_propagate(False)
     for c in range(3):
         selectbcanv.grid_columnconfigure(c, weight=1)
     for r in range(3):
         selectbcanv.grid_rowconfigure(r, weight=1)
     
+    #Slicing Play Canva for Grid Display
+    slicecanvas(playcanv, 9, 9, 702, 702)
+    
+    #Binding Play Canva Grid
+    playcanv.bind('<ButtonPress-1>', playgridS)
+        
     #Slicing Select Canva
-    selectcanvitem=slicecanvas(selectbcanv, 3, 3, 225, 225)
+    slicecanvas(selectbcanv, 3, 3, 225, 225)
+    
+    #Binding Select Canva Grid
+    selectbcanv.bind('<ButtonPress-1>', selectcanvS)
+    
+    #widgets in Select Canva
+    label1=tk.Label(selectbcanv, text="1", font=("ClearSans"))
+    label2=tk.Label(selectbcanv, text="2", font=("ClearSans"))
+    label3=tk.Label(selectbcanv, text="3", font=("ClearSans"))
+    label4=tk.Label(selectbcanv, text="4", font=("ClearSans"))
+    label5=tk.Label(selectbcanv, text="5", font=("ClearSans"))
+    label6=tk.Label(selectbcanv, text="6", font=("ClearSans"))
+    label7=tk.Label(selectbcanv, text="7", font=("ClearSans"))
+    label8=tk.Label(selectbcanv, text="8", font=("ClearSans"))
+    label9=tk.Label(selectbcanv, text="9", font=("ClearSans"))
+    
+    #Display on Select Canva Frame
+    label1.grid(row=0, column=0)
+    label2.grid(row=0, column=1)
+    label3.grid(row=0, column=2)
+    label4.grid(row=1, column=0)
+    label5.grid(row=1, column=1)
+    label6.grid(row=1, column=2)
+    label7.grid(row=2, column=0)
+    label8.grid(row=2, column=1)
+    label9.grid(row=2, column=2)
+    
+    #Widgets in Extra Canva
+    qbutton=tk.Button(extracanv, text="Quit", command=new_game_window.destroy, relief="groove")
+    sbutton=tk.Button(extracanv, text="Save", relief="groove")
+    ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans"), relief="groove")
+    
+    #Display on Extra Canva
+    sbutton.grid(row=0, column=0)
+    ebutton.grid(row=0, column=1)
+    qbutton.grid(row=0, column=2)
     
     #Display on Frame
     playcanv.grid(row=0, column=0, rowspan=2, padx=10,pady=10)
     selectbcanv.grid(row=1, column=1, padx=10, pady=10)
-    infocanv.grid(row=0, column=1, padx=10, pady=10)
+    extracanv.grid(row=0, column=1, padx=10, pady=10)
     
     #When newg_window is closed
     new_game_window.protocol("WM_DELETE_WINDOW", newg_closed)
@@ -95,7 +170,7 @@ menuframe.grid()
 #Widgets
 #Widgets on menu frame
 titlemenu=tk.Label(menuframe, text="Sudoku Game ", font=("tahoma", 14, "bold"), anchor="center")
-newgb=tk.Button(menuframe, text="New Game", padx=5, pady=5, command=newg_window)
+newgb=tk.Button(menuframe, text="New Game", padx=5, pady=5, command=game_window)
 loadgb=tk.Button(menuframe, text="Load Game", padx=5, pady=5)
 playoldb=tk.Button(menuframe, text="Play Old Ones", padx=5, pady=5)
 quitb=tk.Button(menuframe, text="Quit", command=root.destroy, padx=5, pady=5)
