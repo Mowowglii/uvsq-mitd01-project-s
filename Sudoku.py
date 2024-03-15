@@ -73,7 +73,7 @@ def game_window():
     new_game_window=tk.Toplevel(root)
     #New Game Window
     new_game_window.resizable(False,False)
-    new_game_window.title("Sudoku New Game")
+    new_game_window.title("Sudoku Game")
 
     #Frame on New Game Window
     newg_frame=tk.Frame(new_game_window, width=1000, height=750)
@@ -136,14 +136,18 @@ def game_window():
     label9.grid(row=2, column=2)
     
     #Widgets in Extra Canva
-    qbutton=tk.Button(extracanv, text="Quit", command=new_game_window.destroy, relief="groove")
-    sbutton=tk.Button(extracanv, text="Save", relief="groove")
-    ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans"), relief="groove")
+    nbutton=tk.Checkbutton(extracanv, text="Mode Note", font=("CleanSans",10), relief="groove")
+    sbutton=tk.Button(extracanv, text="Save", font=("CleanSans",10), relief="groove")
+    ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans",10), relief="groove")
+    namelabel=tk.Label(extracanv, text="Grid Number", font=("CleanSans"))
+    difficlabel=tk.Label(extracanv, text="Difficulty", font=("CleanSans"))
     
     #Display on Extra Canva
-    sbutton.grid(row=0, column=0)
-    ebutton.grid(row=0, column=1)
-    qbutton.grid(row=0, column=2)
+    sbutton.grid(row=2, column=0)
+    ebutton.grid(row=2, column=1)
+    nbutton.grid(row=2, column=2)
+    namelabel.grid(row=0, column=0, columnspan=3, sticky="s")
+    difficlabel.grid(row=1, column=0, columnspan=3)
     
     #Display on Frame
     playcanv.grid(row=0, column=0, rowspan=2, padx=10,pady=10)
