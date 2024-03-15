@@ -90,7 +90,7 @@ def game_window():
     extracanv.grid_propagate(False)
     for c in range(3):
         extracanv.grid_columnconfigure(c, weight=1)
-    for r in range(3):
+    for r in range(4):
         extracanv.grid_rowconfigure(r, weight=1)
     
     #Select Canva Configuration
@@ -136,18 +136,24 @@ def game_window():
     label9.grid(row=2, column=2)
     
     #Widgets in Extra Canva
-    nbutton=tk.Checkbutton(extracanv, text="Mode Note", font=("CleanSans",10), relief="groove")
-    sbutton=tk.Button(extracanv, text="Save", font=("CleanSans",10), relief="groove")
-    ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans",10), relief="groove")
-    namelabel=tk.Label(extracanv, text="Grid Number", font=("CleanSans"))
-    difficlabel=tk.Label(extracanv, text="Difficulty", font=("CleanSans"))
+    nbutton=tk.Checkbutton(extracanv, text="Note Mode", font=("CleanSans",10), relief="groove")
+    sbutton=tk.Button(extracanv, text="Save", font=("CleanSans", 10), relief="groove")
+    ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans", 10), relief="groove")
+    qbutton=tk.Button(extracanv, text="Give up", font=("CleanSans", 10), relief="groove", command=new_game_window.destroy)
+    namelabel=tk.Label(extracanv, text="Grid Number", font=("CleanSans", 16, "bold"))
+    difficlabel=tk.Label(extracanv, text="Difficulty", font=("CleanSans", 14, "bold"))
+    timelabel=tk.Label(extracanv, text="Timer", font=("ClearSans", 10))
+    errorlabel=tk.Label(extracanv, text="Error n°", font=("CleanSans", 10))
     
     #Display on Extra Canva
-    sbutton.grid(row=2, column=0)
-    ebutton.grid(row=2, column=1)
-    nbutton.grid(row=2, column=2)
-    namelabel.grid(row=0, column=0, columnspan=3, sticky="s")
-    difficlabel.grid(row=1, column=0, columnspan=3)
+    ebutton.grid(row=3, column=0)
+    nbutton.grid(row=3, column=1)
+    sbutton.grid(row=3, column=2)
+    qbutton.grid(row=0, column=0)
+    errorlabel.grid(row=0, column=1)
+    timelabel.grid(row=0, column=2)
+    namelabel.grid(row=1, column=0, columnspan=3)
+    difficlabel.grid(row=2, column=0, columnspan=3)
     
     #Display on Frame
     playcanv.grid(row=0, column=0, rowspan=2, padx=10,pady=10)
@@ -177,7 +183,7 @@ titlemenu=tk.Label(menuframe, text="Sudoku Game ", font=("tahoma", 14, "bold"), 
 newgb=tk.Button(menuframe, text="New Game", padx=5, pady=5, command=game_window)
 loadgb=tk.Button(menuframe, text="Load Game", padx=5, pady=5)
 playoldb=tk.Button(menuframe, text="Play Old Ones", padx=5, pady=5)
-quitb=tk.Button(menuframe, text="Quit", command=root.destroy, padx=5, pady=5)
+quitb=tk.Button(menuframe, text="Quit", command=root.quit, padx=5, pady=5)
 menuloc=tk.Label(menuframe, text="Menu", font=("tahoma", 8, "italic"))
 
 #Display
