@@ -1,8 +1,31 @@
 import tkinter as tk
 
 #Functions
+def slicecanvas(canva:tk.Canvas,rows:int,column:int,canvawidth:int,canvaheight:int):
+    """Slice a Canva into rows x column parcels
+
+    Args:
+        canva (tk.Canvas): The Canva to slice
+        rows (int): number of row we want
+        column (int): number of column we want
+        canvawidth (int): Canva width
+        canvaheight (int): Canva height
+    """
+    Lparcel=canvawidth//column
+    Hparcel=canvaheight//rows
+    parcelmatrix=[]
+    for r in range(rows):
+        for c in range(column):
+            x1=c*Lparcel+7
+            y1=r*Hparcel+7
+            x2=x1+Lparcel
+            y2=y1+Hparcel
+            parcel_id=canva.create_rectangle(x1, y1, x2, y2, outline="black")
+            parcelmatrix.append(parcel_id)
+    return parcelmatrix
+
 def newg_closed():
-    """This function is used when newg_window is closed, it put menu back and destroy newg_window
+    """This function put menu back and destroy newg_window
     """
     global root
     global new_game_window
@@ -18,7 +41,7 @@ def newg_window():
     new_game_window=tk.Toplevel(root)
     #New Game Window
     new_game_window.resizable(False,False)
-    new_game_window.title("Sudoku New Grid")
+    new_game_window.title("Sudoku New Game")
 
     #Frame on New Game Window
     newg_frame=tk.Frame(new_game_window, width=1000, height=750)
@@ -30,6 +53,13 @@ def newg_window():
     selectbcanv=tk.Canvas(newg_frame,width=225,height=225,borderwidth=5, relief="sunken")
     infocanv=tk.Canvas(newg_frame, width=225, height=225, borderwidth=5, relief="ridge")
     
+    #Slicing Play Canva for Grid Display
+    playitem=slicecanvas(playcanv, 9, 9, 702, 702)
+    for l in range(1,3):
+        for h in range(1,3):
+            playcanv.create_line(l*(702/3)+7,7,l*(702/3)+7,709,width=3)
+            playcanv.create_line(7,h*(702/3)+7,709,h*(702/3)+7,width=3)
+    
     #Select Canva Configuration
     selectbcanv.grid_propagate(False)
     for c in range(3):
@@ -37,27 +67,8 @@ def newg_window():
     for r in range(3):
         selectbcanv.grid_rowconfigure(r, weight=1)
     
-    #Widgets on Select Canvas
-    button1=tk.Button(selectbcanv, text="1", font=("ClearSans"), padx=5, pady=5, relief="groove")
-    button2=tk.Button(selectbcanv, text="2", font=("ClearSans"), padx=5, pady=5, relief="groove")
-    button3=tk.Button(selectbcanv, text="3", font=("ClearSans"), padx=5, pady=5, relief="groove")
-    button4=tk.Button(selectbcanv, text="4", font=("ClearSans"), padx=5, pady=5, relief="groove")
-    button5=tk.Button(selectbcanv, text="5", font=("ClearSans"), padx=5, pady=5, relief="groove")
-    button6=tk.Button(selectbcanv, text="6", font=("ClearSans"), padx=5, pady=5, relief="groove")
-    button7=tk.Button(selectbcanv, text="7", font=("ClearSans"), padx=5, pady=5, relief="groove")
-    button8=tk.Button(selectbcanv, text="8", font=("ClearSans"), padx=5, pady=5, relief="groove")
-    button9=tk.Button(selectbcanv, text="9", font=("ClearSans"), padx=5, pady=5, relief="groove")
-    
-    #Display on Select Canvas
-    button1.grid(row=0, column=0, padx=5, pady=5)
-    button2.grid(row=0, column=1, padx=5, pady=5)
-    button3.grid(row=0, column=2, padx=5, pady=5)
-    button4.grid(row=1, column=0, padx=5, pady=5)
-    button5.grid(row=1, column=1, padx=5, pady=5)
-    button6.grid(row=1, column=2, padx=5, pady=5)
-    button7.grid(row=2, column=0, padx=5, pady=5)
-    button8.grid(row=2, column=1, padx=5, pady=5)
-    button9.grid(row=2, column=2, padx=5, pady=5)
+    #Slicing Select Canva
+    selectcanvitem=slicecanvas(selectbcanv, 3, 3, 225, 225)
     
     #Display on Frame
     playcanv.grid(row=0, column=0, rowspan=2, padx=10,pady=10)
