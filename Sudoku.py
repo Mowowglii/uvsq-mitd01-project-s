@@ -176,7 +176,7 @@ def game_window():
     sbutton=tk.Button(extracanv, text="Save", font=("CleanSans", 10), relief="groove")
     ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans", 10), relief="groove")
     qbutton=tk.Button(extracanv, text="Give up", font=("CleanSans", 10), relief="groove", command=new_game_window.destroy)
-    namelabel=tk.Label(extracanv, text="Grid Number", font=("CleanSans", 16, "bold"))
+    namelabel=tk.Label(extracanv, text="New Grid", font=("CleanSans", 16, "bold"))
     difficlabel=tk.Label(extracanv, text="Difficulty", font=("CleanSans", 14, "bold"))
     timelabel=tk.Label(extracanv, text="00:00", font=("ClearSans", 10))
     errorlabel=tk.Label(extracanv, text="x errors", font=("CleanSans", 10))
