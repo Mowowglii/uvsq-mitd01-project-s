@@ -3,7 +3,9 @@ import tkinter as tk
 #Global Variables
 usernumber=0
 
-#Functions
+#Game Functions
+
+#Display or GUI Functions
 def caseindex_to_casepx(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->list[int,int]:
     """Convert Case Index position to Case Pixel position in canva
 
