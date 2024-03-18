@@ -142,6 +142,7 @@ def game_window():
     
     #Widget on Play Canv
     gridframe=tk.Frame(playcanv, width=702, height=702, bg="")
+    gridframe.grid_propagate(False)
     
     #Display on Play Canv
     gridframe.grid(row=0, column=0, columnspan=9, rowspan=9)
