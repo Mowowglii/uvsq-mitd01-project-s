@@ -69,7 +69,7 @@ def playgridS(event=tk.Event):
     Args:
         event (tk.Event, optional): The event generated (here is click)
     """
-    print(f'Click on Playgrid : {mouse_to_case(event.x, event.y, 9, 9, 702, 702, 7)}')
+    print(f'Click on Playgrid : {mouse_to_case(event.x, event.y, 9, 9, 702, 702)}')
 
 def usern_selection(number:int):
     """Set User Selected number
