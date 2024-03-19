@@ -1,7 +1,7 @@
 import tkinter as tk
 
 #Global Variables
-usernumber=0
+userpos=[]
 
 #Game Functions
 
@@ -69,7 +69,9 @@ def playgridS(event=tk.Event):
     Args:
         event (tk.Event, optional): The event generated (here is click)
     """
-    print(f'Click on Playgrid : {mouse_to_case(event.x, event.y, 9, 9, 702, 702)}')
+    global userpos
+    userpos=mouse_to_case(event.x, event.y, 9, 9, 702, 702)
+    print(userpos)
 
 def usern_selection(number:int):
     """Set User Selected number
@@ -77,9 +79,7 @@ def usern_selection(number:int):
     Args:
         number (int): The chosen number
     """
-    global usernumber
-    usernumber=number
-    print(usernumber)
+    print(number)
     
 def game_window_closed():
     """This function put menu back and destroy newg_window
