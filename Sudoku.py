@@ -23,7 +23,7 @@ def caseindex_to_casepx(x_pos:int, y_pos:int, row:int, column:int, canwidth:int,
     """
     return [int(x_pos*((canwidth+canborder)/column)), int(y_pos*((canheight+canborder)/row))]
 
-def mouse_to_case(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->list[int,int]:
+def mouse_to_case(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->tuple[int]:
     """Convert Mouse Pix Position in Canvas to Case index in grid
 
     Args:
@@ -38,7 +38,7 @@ def mouse_to_case(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canhe
     Returns:
         list[int,int]: [x_index, y_index]
     """
-    return [int(x_pos//((canwidth+canborder)/column)), int(y_pos//((canheight+canborder)/row))]
+    return (int(x_pos//((canwidth+canborder)/column)), int(y_pos//((canheight+canborder)/row)))
 
 def slicecanvas(canva:tk.Canvas,rows:int,column:int,canvawidth:int,canvaheight:int):
     """Slice a Canva into rows x column parcels
