@@ -38,7 +38,7 @@ def mouse_to_case(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canhe
     Returns:
         list[int,int]: [x_index, y_index]
     """
-    return (int(x_pos//((canwidth+canborder)/column)), int(y_pos//((canheight+canborder)/row)))
+    return (int(y_pos//((canheight+canborder)/row)), int(x_pos//((canwidth+canborder)/column)))
 
 def slicecanvas(canva:tk.Canvas,rows:int,column:int,canvawidth:int,canvaheight:int):
     """Slice a Canva into rows x column parcels
