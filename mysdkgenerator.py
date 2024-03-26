@@ -393,14 +393,16 @@ def blocking_id(grid:np.ndarray):
 #Value that must be in the cell
     #take the shorter len of available value for region possibility, column possibility and row possibility
     #init a variable containing the needed value
-    needed_value=None
+    region_needed=None
+    column_needed=None
+    line_needed=None
     if len(region_possibility(grid)[reg_coord(Lpath[-1])])<len(column_possibility(grid)[Lpath[-1][1]]) and len(region_possibility(grid)[reg_coord(Lpath[-1])])<len(line_possibility(grid)[Lpath[-1][0]]):
-        needed_value=region_possibility(grid)[reg_coord(Lpath[-1])][0]
+        region_needed=region_possibility(grid)[reg_coord(Lpath[-1])][0]
     elif len(column_possibility(grid)[Lpath[-1][1]])<len(region_possibility(grid)[reg_coord(Lpath[-1])]) and len(column_possibility(grid)[Lpath[-1][1]])<len(line_possibility(grid)[Lpath[-1][0]]):
-        needed_value=column_possibility(grid)[Lpath[-1][1]][0]
+        column_needed=column_possibility(grid)[Lpath[-1][1]][0]
     elif len(line_possibility(grid)[Lpath[-1][1]])<len(region_possibility(grid)[reg_coord(Lpath[-1])]) and len(line_possibility(grid)[Lpath[-1][1]])<len(column_possibility(grid)[Lpath[-1][1]]):
-        needed_value=line_possibility(grid)[Lpath[-1][0]][0]
-    return needed_value
+        line_needed=line_possibility(grid)[Lpath[-1][0]][0]
+    return column_needed, line_needed, region_needed
 
 def backtracking_coord_search(grid:np.ndarray):
     """Modify the path and value history list to prepare for backtracking.

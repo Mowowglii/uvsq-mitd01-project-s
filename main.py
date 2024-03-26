@@ -1,30 +1,69 @@
+#Imports
+from sdklibmyfunc import *
 import tkinter as tk
 
 #Global Variables
-userpos=[]
+u_position=None
+u_number=None
 
-#Game Functions
+#Link beetween GUI and Game functions
+
+def playgridS(event=tk.Event):
+    """The goal of this function is to do the link between the display and the empty grid
+
+    Args:
+        event (tk.Event, optional): The event generated (here is click)
+    """
+    global u_position
+    u_position=mouse_to_case(event.x, event.y, 9, 9, 702, 702)
+
+def usern_selection(number:int):
+    """Set User Selected number
+
+    Args:
+        number (int): The chosen number
+    """
+    global u_number
+    u_number=number
 
 #Display or GUI Functions
+
+def display_in_grid(coordinate:tuple[int], value:int):
+    """Dislpay numbers on the grid
+
+    Args:
+        coordinate (tuple[int]): position in grid of the number (x_position, y_position)
+        value (int): the value to enter inside of the grid
+    """
+    #Getting default number  of pixel needed for 1 case
+    casepixel=caseindex_to_casepx(1,1,9,9,702,702)
+    #Getting the pixel position of the case of injection
+    pixel_position=caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702)
+    #Splitting it to get x position of text
+    x_pos=pixel_position[0]-(casepixel[0]/2)+5
+    y_pos=pixel_position[1]-(casepixel[0]/2)+5
+    #creating text in canva to diplay the number
+    playcanv.create_text(x_pos, y_pos, text=str(value), font=("ClearSans", 20, "bold"), anchor=tk.CENTER)
+
 def caseindex_to_casepx(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->list[int,int]:
     """Convert Case Index position to Case Pixel position in canva
 
     Args:
         x_pos (int): Index x
         y_pos (int): Index y
-        row (int): Row of the canva
-        column (int): Column of the canva
+        row (int): Number of row of the canva
+        column (int): Number of column of the canva
         canwidth (int): Width of canva
         canheight (int): Height of canva
         canborder (int, optional): Canva border. Defaults to 0.
 
     Returns:
-        list[int,int]: [x positon in px, y position in px]
+        tuple[int]: (x positon in px, y position in px)
     """
-    return [int(x_pos*((canwidth+canborder)/column)), int(y_pos*((canheight+canborder)/row))]
+    return (int(x_pos*((canwidth+canborder)/column)), int(y_pos*((canheight+canborder)/row)))
 
 def mouse_to_case(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->tuple[int]:
-    """Convert Mouse Pix Position in Canvas to Case index in grid
+    """Convert Mouse Position (px) in Canvas to Case index in grid
 
     Args:
         x_pos (int): Position x
@@ -36,7 +75,7 @@ def mouse_to_case(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canhe
         canborder (int, optional): Canva border thickness. Defaults to 0.
 
     Returns:
-        list[int,int]: [x_index, y_index]
+        tuple[int]: (x_index, y_index)
     """
     return (int(y_pos//((canheight+canborder)/row)), int(x_pos//((canwidth+canborder)/column)))
 
@@ -63,24 +102,6 @@ def slicecanvas(canva:tk.Canvas,rows:int,column:int,canvawidth:int,canvaheight:i
                 canva.create_line(x1, 7, x1, canvaheight+7)
                 canva.create_line(7,y1,canvawidth+7,y1)
 
-def playgridS(event=tk.Event):
-    """The goal of this function is to do the link between the display and the empty grid
-
-    Args:
-        event (tk.Event, optional): The event generated (here is click)
-    """
-    global userpos
-    userpos=mouse_to_case(event.x, event.y, 9, 9, 702, 702)
-    print(userpos)
-
-def usern_selection(number:int):
-    """Set User Selected number
-
-    Args:
-        number (int): The chosen number
-    """
-    print(number)
-    
 def game_window_closed():
     """This function put menu back and destroy newg_window
     """
@@ -96,8 +117,16 @@ def game_window():
     global selectbcanv
     global extracanv
     global playcanv
-    global usernumber
+    global u_position
+    global u_number
+    global board
     root.iconify()
+#Game Part
+    #Generate a sudoku grid
+    grid=generate_grid()
+    #converting it into a handled grid
+    board=manip_grid(grid)
+#Display Part
     new_game_window=tk.Toplevel(root)
     #New Game Window
     new_game_window.resizable(False,False)
@@ -143,6 +172,11 @@ def game_window():
     #Widget on Play Canv
     gridframe=tk.Frame(playcanv, width=702, height=702, bg="")
     gridframe.grid_propagate(False)
+    #create the list of coordinates
+    cList=get_values_coord(board)
+    #filling the grid with the clues (to write)
+    for element in cList:
+        display_in_grid(element, board[element[0]][element[1]])
     
     #Display on Play Canv
     gridframe.grid(row=0, column=0, columnspan=9, rowspan=9)
