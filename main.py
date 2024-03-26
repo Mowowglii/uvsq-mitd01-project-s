@@ -24,7 +24,12 @@ def usern_selection(number:int):
         number (int): The chosen number
     """
     global u_number
+    #Setting the global variable of user_number
     u_number=number
+    #Injecting the value in board
+    inject(board, u_position, u_number)
+    #Displaying in the user interface
+    display_in_grid(u_position, u_number)
 
 #Display or GUI Functions
 
@@ -36,8 +41,8 @@ def display_in_grid(coordinate:tuple[int], value:int):
         value (int): the value to enter inside of the grid
     """
     #Getting x position of text
-    postxt_y=(caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702, 7)[0])-(caseindex_to_casepx(0, 0, 9, 9, 702, 702, 7)[0]/2)
-    postxt_x=(caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702, 7)[1])-(caseindex_to_casepx(0, 0, 9, 9, 702, 702, 7)[1]/2)
+    postxt_y=(caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702, 7)[0])-(caseindex_to_casepx(0, 0, 9, 9, 702, 702, 7)[0]/2)+5
+    postxt_x=(caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702, 7)[1])-(caseindex_to_casepx(0, 0, 9, 9, 702, 702, 7)[1]/2)+5
     #creating text in canva to diplay the number
     playcanv.create_text(postxt_x, postxt_y, text=str(value), font=("ClearSans", 20, "bold"), anchor=tk.CENTER)
 
@@ -122,7 +127,7 @@ def game_window():
     grid=generate_grid(0.80)
     #debugging part
     grid.show_full()
-    #converting it into a handled grid
+    #Setting the grid of interaction
     board=manip_grid(grid)
 #Display Part
     new_game_window=tk.Toplevel(root)
@@ -139,14 +144,6 @@ def game_window():
     playcanv=tk.Canvas(newg_frame, width=702, height=702, borderwidth=5, relief="sunken")
     selectbcanv=tk.Canvas(newg_frame, width=225, height=225, borderwidth=5, relief="sunken")
     extracanv=tk.Canvas(newg_frame, width=225, height=225, borderwidth=5, relief="ridge")
-
-    #Playcanv configuration
-    playcanv.grid_propagate(False)
-    playcanv.grid_propagate(False)
-    for c in range(9):
-        playcanv.grid_columnconfigure(c, weight=1)
-    for r in range(9):
-        playcanv.grid_rowconfigure(r, weight=1)
     
     #Extra Canva Configuration
     extracanv.grid_propagate(False)
@@ -167,22 +164,15 @@ def game_window():
     #Slicing Play Canv
     slicecanvas(playcanv, 9, 9, 702, 702)
     
-    #Widget on Play Canv
-    gridframe=tk.Frame(playcanv, width=702, height=702, bg="")
-    gridframe.grid_propagate(False)
+    
     #create the list of coordinates
     cList=get_values_coord(board)
-    print(cList)
     #filling the grid with the clues (to write)
     for element in cList:
-        print(element)
         display_in_grid(element, board[element[0]][element[1]])
-    
-    #Display on Play Canv
-    gridframe.grid(row=0, column=0, columnspan=9, rowspan=9)
-    
-    #Binding Play Canva Grid
-    gridframe.bind('<ButtonPress-1>', playgridS)
+
+    #Binding the playcanv
+    playcanv.bind('<ButtonPress-1>', playgridS)
     
     #widgets in Select Canva
     b1=tk.Button(selectbcanv, text="1", font=("ClearSans"), relief="groove", padx=15, pady=10, command=lambda: usern_selection(1))

@@ -1,6 +1,7 @@
 import numpy as np
 import sudoku as sdk
 
+
 def generate_grid(difficulty:int=0.4):
     """generate a sudoku grid using the sudoku library
     Args:
@@ -37,5 +38,19 @@ def get_values_coord(grid:list)->list[tuple[int]]:
                 #add position in coordinate list
                 coordList.append((grid.index(line), line.index(element)))
     return coordList
+
+def inject(grid:list, coordinate:tuple[int], value:int)->list[list[int]]:
+    """inject a value inside of the handled grid
+
+    Args:
+        grid (list): handled grid
+
+    Returns:
+        list[list[int]]: the grid with injection
+    """
+    #Debugging part 
+    assert coordinate not in get_values_coord(grid)
+    #Injecting the value inside of the grid
+    grid[coordinate[0]][coordinate[1]]=value
 
 #Testing Zone
