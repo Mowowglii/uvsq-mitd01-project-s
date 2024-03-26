@@ -35,15 +35,11 @@ def display_in_grid(coordinate:tuple[int], value:int):
         coordinate (tuple[int]): position in grid of the number (x_position, y_position)
         value (int): the value to enter inside of the grid
     """
-    #Getting default number  of pixel needed for 1 case
-    casepixel=caseindex_to_casepx(1,1,9,9,702,702)
-    #Getting the pixel position of the case of injection
-    pixel_position=caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702)
-    #Splitting it to get x position of text
-    x_pos=pixel_position[0]-(casepixel[0]/2)+5
-    y_pos=pixel_position[1]-(casepixel[0]/2)+5
+    #Getting x position of text
+    postxt_y=(caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702, 7)[0])-(caseindex_to_casepx(0, 0, 9, 9, 702, 702, 7)[0]/2)
+    postxt_x=(caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702, 7)[1])-(caseindex_to_casepx(0, 0, 9, 9, 702, 702, 7)[1]/2)
     #creating text in canva to diplay the number
-    playcanv.create_text(x_pos, y_pos, text=str(value), font=("ClearSans", 20, "bold"), anchor=tk.CENTER)
+    playcanv.create_text(postxt_x, postxt_y, text=str(value), font=("ClearSans", 20, "bold"), anchor=tk.CENTER)
 
 def caseindex_to_casepx(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->list[int,int]:
     """Convert Case Index position to Case Pixel position in canva
@@ -60,7 +56,7 @@ def caseindex_to_casepx(x_pos:int, y_pos:int, row:int, column:int, canwidth:int,
     Returns:
         tuple[int]: (x positon in px, y position in px)
     """
-    return (int(x_pos*((canwidth+canborder)/column)), int(y_pos*((canheight+canborder)/row)))
+    return (int((x_pos+1)*((canwidth+canborder)/column)), int((y_pos+1)*((canheight+canborder)/row)))
 
 def mouse_to_case(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->tuple[int]:
     """Convert Mouse Position (px) in Canvas to Case index in grid
@@ -123,7 +119,9 @@ def game_window():
     root.iconify()
 #Game Part
     #Generate a sudoku grid
-    grid=generate_grid()
+    grid=generate_grid(0.80)
+    #debugging part
+    grid.show_full()
     #converting it into a handled grid
     board=manip_grid(grid)
 #Display Part
@@ -174,8 +172,10 @@ def game_window():
     gridframe.grid_propagate(False)
     #create the list of coordinates
     cList=get_values_coord(board)
+    print(cList)
     #filling the grid with the clues (to write)
     for element in cList:
+        print(element)
         display_in_grid(element, board[element[0]][element[1]])
     
     #Display on Play Canv

@@ -39,7 +39,3 @@ def get_values_coord(grid:list)->list[tuple[int]]:
     return coordList
 
 #Testing Zone
-grid=generate_grid()
-grid.show_full()
-grid=manip_grid(grid)
-print(get_values_coord(grid))
