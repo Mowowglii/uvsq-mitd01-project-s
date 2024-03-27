@@ -6,7 +6,7 @@ import tkinter as tk
 #Setting a dictionary to store the IDs of play grid texts
 ids_pgtxt={}
 
-#Global Variables
+#Game global Variables
 u_position=None
 u_number=None
 
@@ -150,7 +150,7 @@ def game_window():
     root.iconify()
 #Game Part
     #Generate a sudoku grid
-    grid=generate_grid(0.1)
+    grid=generate_grid()
     #Setting the grid of interaction
     board=manip_grid(grid)
 #Display Part
