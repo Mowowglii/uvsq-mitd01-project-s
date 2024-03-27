@@ -5,7 +5,7 @@ import tkinter as tk
 #Global Dictionary or List
 #Setting a dictionary to store the IDs of play grid texts
 ids_pgtxt={}
-
+ids_cell={}
 #Game global Variables
 u_position=None
 u_number=None
@@ -19,7 +19,7 @@ def playgridS(event=tk.Event):
         event (tk.Event, optional): The event generated (here is click)
     """
     global u_position
-    u_position=mouse_to_case(event.x, event.y, 9, 9, 702, 702)
+    u_position=mouse_to_case(event.x, event.y)
 
 def usern_selection(number:int):
     """Set User Selected number
@@ -36,6 +36,13 @@ def usern_selection(number:int):
     display_in_ugrid(u_position, u_number)
 
 #Display or GUI Functions
+def highlight_cell(coordinate:tuple[int]):
+    """Highlight a cell in the playgrid
+
+    Args:
+        coordinate (tuple[int]): the coordinate of the cell
+    """
+    
 
 def display_in_ugrid(coordinate:tuple[int], value:int):
     """Dislpay numbers on the grid
@@ -44,11 +51,14 @@ def display_in_ugrid(coordinate:tuple[int], value:int):
         coordinate (tuple[int]): position in grid of the number (x_position, y_position)
         value (int): the value to enter inside of the grid
     """
+    #Recover the playcanv height and width
+    canvawidth = playcanv.winfo_reqwidth()
+    canvaheight = playcanv.winfo_reqheight()
     #Getting x position of text
-    postxt_y=(caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702, 7)[0])-(caseindex_to_casepx(0, 0, 9, 9, 702, 702, 7)[0]/2)+5
-    postxt_x=(caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702, 7)[1])-(caseindex_to_casepx(0, 0, 9, 9, 702, 702, 7)[1]/2)+5
+    postxt_y=(caseindex_to_casepx(coordinate[0], coordinate[1])[0])+((canvaheight/9)/2)
+    postxt_x=(caseindex_to_casepx(coordinate[0], coordinate[1])[1])+((canvawidth/9)/2)
     #creating text in canva to diplay the number and assign all created text on play grid an ID
-    ctxt_id=playcanv.create_text(postxt_x, postxt_y, text=str(value), font=("ClearSans", 20, "bold"), anchor=tk.CENTER)
+    ctxt_id=playcanv.create_text(postxt_x, postxt_y, text=str(value), font=("ClearSans", 20, "bold"))
     #Storing the id of the item in the ids dictionary
     ids_pgtxt[str(coordinate)]=ctxt_id
 
@@ -70,62 +80,76 @@ def erase_value(coordinate:tuple[int]):
         playcanv.type(txt_id)
         playcanv.delete(txt_id)
 
-def caseindex_to_casepx(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->list[int,int]:
+def caseindex_to_casepx(x_pos:int, y_pos:int)->list[int,int]:
     """Convert Case Index position to Case Pixel position in canva
 
     Args:
         x_pos (int): Index x
         y_pos (int): Index y
-        row (int): Number of row of the canva
-        column (int): Number of column of the canva
-        canwidth (int): Width of canva
-        canheight (int): Height of canva
-        canborder (int, optional): Canva border. Defaults to 0.
 
     Returns:
         tuple[int]: (x positon in px, y position in px)
     """
-    return (int((x_pos+1)*((canwidth+canborder)/column)), int((y_pos+1)*((canheight+canborder)/row)))
+    #Recovering the canva height and width
+    canvawidth = playcanv.winfo_reqwidth()
+    canvaheight = playcanv.winfo_reqheight()
+    return (int((x_pos)*(canvawidth/9)), int((y_pos)*(canvaheight/9)))
 
-def mouse_to_case(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->tuple[int]:
+def mouse_to_case(x_pos:int, y_pos:int)->tuple[int]:
     """Convert Mouse Position (px) in Canvas to Case index in grid
 
     Args:
+        canva (tk.Canvas): the canva of the binding
         x_pos (int): Position x
         y_pos (int): Position y
-        row (int): Number of row
-        column (int): Number of column
-        canwidth (int): Width of Canva
-        canheight (int): Height of Canva
-        canborder (int, optional): Canva border thickness. Defaults to 0.
-
     Returns:
         tuple[int]: (x_index, y_index)
     """
-    return (int(y_pos//((canheight+canborder)/row)), int(x_pos//((canwidth+canborder)/column)))
+    #Recovering the height and width of the canva
+    canvawidth = playcanv.winfo_reqwidth()
+    canvaheight = playcanv.winfo_reqheight()
+    return (int(y_pos//int(canvaheight/9)), int(x_pos//int(canvawidth/9)))
 
-def slicecanvas(canva:tk.Canvas,rows:int,column:int,canvawidth:int,canvaheight:int):
-    """Slice a Canva into rows x column parcels
+def display_grid():
+    """Display Grid on the playcanva
 
     Args:
-        canva (tk.Canvas): The Canva to slice
-        rows (int): number of row we want
-        column (int): number of column we want
-        canvawidth (int): Canva width
-        canvaheight (int): Canva height
+        canva (tk.Canvas): The Canva to display grid in it
     """
-    Lparcel=canvawidth//column
-    Hparcel=canvaheight//rows
-    for r in range(rows):
-        for c in range(column):
-            x1=c*Lparcel+7
-            y1=r*Hparcel+7
-            if (x1==(canvawidth/3)+7 and y1==(canvaheight/3)+7) or (x1==2*(canvawidth/3)+7 and y1==2*(canvaheight/3)+7):
-                canva.create_line(x1, 7, x1, canvaheight+7, width=3)
-                canva.create_line(7,y1,canvawidth+7,y1, width=3)
-            else:
-                canva.create_line(x1, 7, x1, canvaheight+7)
-                canva.create_line(7,y1,canvawidth+7,y1)
+    global ids_cell
+    #Recovering the canva height and width
+    canvawidth = playcanv.winfo_reqwidth()
+    canvaheight = playcanv.winfo_reqheight()
+    #Init the coordinate variable of the cell
+    #x for column
+    x=0
+    #y for line
+    y=0
+    #creating the pointer of y0 position (line)
+    for y0 in range(0,int((8*canvaheight)/9),int(canvaheight/9)):
+        #creating the pointer of x0 position (column)
+        for x0 in range(0,int((8*canvawidth)/9),int(canvawidth/9)):
+            #Set x1 position 
+            x1=x0+(canvawidth/9)
+            #Set y1 position
+            y1=y0+(canvaheight/9)
+            #Create the rectangle and set its ID
+            cell_id=playcanv.create_rectangle(x0, y0, x1, y1, fill="white", outline="black")
+            #add the rectangle ID in id dictionary
+            ids_cell[(y,x)]=cell_id
+            #update the coordinates
+            if x < 8:
+                x+=1
+            elif x == 8:
+                x=0
+                y+=1
+    #Just For Esthetic
+    #create vertical regions lines
+    for c in range(int(canvawidth/3), int(canvawidth), int(canvawidth/3)):
+        playcanv.create_line(c, 0, c, canvaheight, width=3)
+    #create horizontal region lines
+    for l in range(int(canvaheight/3), int(canvaheight), int(canvaheight/3)):
+        playcanv.create_line(0, l, canvawidth, l, width=3)
 
 def game_window_closed():
     """This function put menu back and destroy newg_window
@@ -150,7 +174,7 @@ def game_window():
     root.iconify()
 #Game Part
     #Generate a sudoku grid
-    grid=generate_grid()
+    grid=generate_grid(0.9)
     #Setting the grid of interaction
     board=manip_grid(grid)
 #Display Part
@@ -161,7 +185,7 @@ def game_window():
 
     #Frame on New Game Window
     newg_frame=tk.Frame(new_game_window, width=1000, height=750)
-    newg_frame.grid_propagate(False)
+    #newg_frame.grid_propagate(False)
     newg_frame.grid()
     
     #Widgets on Frame
@@ -171,7 +195,6 @@ def game_window():
     
     #Extra Canva Configuration
     extracanv.grid_propagate(False)
-    extracanv.grid_propagate(False)
     for c in range(3):
         extracanv.grid_columnconfigure(c, weight=1)
     for r in range(4):
@@ -179,15 +202,14 @@ def game_window():
     
     #Select Canva Configuration
     selectbcanv.grid_propagate(False)
-    selectbcanv.grid_propagate(False)
     for c in range(3):
         selectbcanv.grid_columnconfigure(c, weight=1)
     for r in range(3):
         selectbcanv.grid_rowconfigure(r, weight=1)
     
-    #Slicing Play Canv
-    slicecanvas(playcanv, 9, 9, 702, 702)
-
+    #Displaying grid on playgrid
+    display_grid()
+    
     #create the list of coordinates
     cList=get_values_coord(board)
     #filling the grid with the clues (to write)
@@ -240,7 +262,7 @@ def game_window():
     difficlabel.grid(row=2, column=0, columnspan=3)
     
     #Display on Frame
-    playcanv.grid(row=0, column=0, rowspan=2, padx=10,pady=10)
+    playcanv.grid(row=0, column=0, rowspan=2, padx=10, pady=10, sticky="nsew")
     selectbcanv.grid(row=1, column=1, padx=10, pady=10)
     extracanv.grid(row=0, column=1, padx=10, pady=10)
     
