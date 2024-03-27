@@ -53,4 +53,13 @@ def inject(grid:list, coordinate:tuple[int], value:int)->list[list[int]]:
     #Injecting the value inside of the grid
     grid[coordinate[0]][coordinate[1]]=value
 
+def erase(grid:list, coordinate:tuple[int]):
+    """Erase the content of a cell
+
+    Args:
+        grid (list): the play grid
+        coordinate (tuple[int]): the position of the user where he want to erase
+    """
+    grid[coordinate[0]][coordinate[1]]=None
+
 #Testing Zone

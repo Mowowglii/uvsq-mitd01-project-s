@@ -2,6 +2,10 @@
 from sdklibmyfunc import *
 import tkinter as tk
 
+#Global Dictionary or List
+#Setting a dictionary to store the IDs of play grid texts
+ids_pgtxt={}
+
 #Global Variables
 u_position=None
 u_number=None
@@ -29,11 +33,11 @@ def usern_selection(number:int):
     #Injecting the value in board
     inject(board, u_position, u_number)
     #Displaying in the user interface
-    display_in_grid(u_position, u_number)
+    display_in_ugrid(u_position, u_number)
 
 #Display or GUI Functions
 
-def display_in_grid(coordinate:tuple[int], value:int):
+def display_in_ugrid(coordinate:tuple[int], value:int):
     """Dislpay numbers on the grid
 
     Args:
@@ -43,8 +47,28 @@ def display_in_grid(coordinate:tuple[int], value:int):
     #Getting x position of text
     postxt_y=(caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702, 7)[0])-(caseindex_to_casepx(0, 0, 9, 9, 702, 702, 7)[0]/2)+5
     postxt_x=(caseindex_to_casepx(coordinate[0], coordinate[1], 9, 9, 702, 702, 7)[1])-(caseindex_to_casepx(0, 0, 9, 9, 702, 702, 7)[1]/2)+5
-    #creating text in canva to diplay the number
-    playcanv.create_text(postxt_x, postxt_y, text=str(value), font=("ClearSans", 20, "bold"), anchor=tk.CENTER)
+    #creating text in canva to diplay the number and assign all created text on play grid an ID
+    ctxt_id=playcanv.create_text(postxt_x, postxt_y, text=str(value), font=("ClearSans", 20, "bold"), anchor=tk.CENTER)
+    #Storing the id of the item in the ids dictionary
+    ids_pgtxt[str(coordinate)]=ctxt_id
+
+def erase_value(coordinate:tuple[int]):
+    """Erase the value in cell for the user grid display
+
+    Args:
+        coordinate (tuple[int]): the position of the user
+    """
+    global newg_frame
+    #Checking if the coordinate is a clue
+    if coordinate not in cList:
+    #Erase the value in board
+        erase(board, coordinate)
+    #Erase in user interface
+        #recover the id of the item
+        txt_id = ids_pgtxt.get(str(coordinate))
+        #erase in user interface
+        playcanv.type(txt_id)
+        playcanv.delete(txt_id)
 
 def caseindex_to_casepx(x_pos:int, y_pos:int, row:int, column:int, canwidth:int, canheight:int, canborder=0)->list[int,int]:
     """Convert Case Index position to Case Pixel position in canva
@@ -121,12 +145,12 @@ def game_window():
     global u_position
     global u_number
     global board
+    global newg_frame
+    global cList
     root.iconify()
 #Game Part
     #Generate a sudoku grid
-    grid=generate_grid(0.80)
-    #debugging part
-    grid.show_full()
+    grid=generate_grid(0.1)
     #Setting the grid of interaction
     board=manip_grid(grid)
 #Display Part
@@ -163,13 +187,12 @@ def game_window():
     
     #Slicing Play Canv
     slicecanvas(playcanv, 9, 9, 702, 702)
-    
-    
+
     #create the list of coordinates
     cList=get_values_coord(board)
     #filling the grid with the clues (to write)
     for element in cList:
-        display_in_grid(element, board[element[0]][element[1]])
+        display_in_ugrid(element, board[element[0]][element[1]])
 
     #Binding the playcanv
     playcanv.bind('<ButtonPress-1>', playgridS)
@@ -199,7 +222,7 @@ def game_window():
     #Widgets in Extra Canva
     nbutton=tk.Checkbutton(extracanv, text="Note Mode", font=("CleanSans",10), relief="groove")
     sbutton=tk.Button(extracanv, text="Save", font=("CleanSans", 10), relief="groove")
-    ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans", 10), relief="groove")
+    ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans", 10), relief="groove", command=lambda:erase_value(u_position))
     qbutton=tk.Button(extracanv, text="Give up", font=("CleanSans", 10), relief="groove", command=new_game_window.destroy)
     namelabel=tk.Label(extracanv, text="New Grid", font=("CleanSans", 16, "bold"))
     difficlabel=tk.Label(extracanv, text="Difficulty", font=("CleanSans", 14, "bold"))
