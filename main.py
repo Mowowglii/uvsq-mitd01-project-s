@@ -20,7 +20,8 @@ def playgridS(event=tk.Event):
     """
     global u_position
     u_position=mouse_to_case(event.x, event.y)
-
+    default_highlight_cell(u_position)
+    
 def usern_selection(number:int):
     """Set User Selected number
 
@@ -28,21 +29,35 @@ def usern_selection(number:int):
         number (int): The chosen number
     """
     global u_number
+    global u_position
     #Setting the global variable of user_number
     u_number=number
-    #Injecting the value in board
-    inject(board, u_position, u_number)
-    #Displaying in the user interface
-    display_in_ugrid(u_position, u_number)
+    if u_position not in cList:
+        #Injecting the value in board
+        inject(gridnp, u_position, u_number)
+        #Displaying in the user interface
+        display_in_ugrid(u_position, u_number)
 
 #Display or GUI Functions
-def highlight_cell(coordinate:tuple[int]):
-    """Highlight a cell in the playgrid
+def default_highlight_cell(coordinate:tuple[int]):
+    """Highlight the cells in the same column, line and region of the user position
 
     Args:
         coordinate (tuple[int]): the coordinate of the cell
     """
-    
+    #reset all the cells configuration
+    for cids in list(ids_cell.values()):
+        playcanv.itemconfig(cids, fill="white", outline="black")
+    #recover the coordinates of every cells that has to be highlighted
+    for coordinates in default_coord_showL(coordinate):
+        #recover the id of the cell in canvas
+        cell_id=ids_cell.get(coordinates)
+        #highlight the cell
+        playcanv.itemconfig(cell_id, fill="#D6EAF8")
+    #recover the id of the coordinate cell in canvas
+    coord_cell_id=ids_cell.get(coordinate)
+    #highlight the cell a little bit darker than everyone else
+    playcanv.itemconfig(coord_cell_id, fill="#85C1E9")
 
 def display_in_ugrid(coordinate:tuple[int], value:int):
     """Dislpay numbers on the grid
@@ -72,7 +87,7 @@ def erase_value(coordinate:tuple[int]):
     #Checking if the coordinate is a clue
     if coordinate not in cList:
     #Erase the value in board
-        erase(board, coordinate)
+        erase(gridl, coordinate)
     #Erase in user interface
         #recover the id of the item
         txt_id = ids_pgtxt.get(str(coordinate))
@@ -168,24 +183,26 @@ def game_window():
     global playcanv
     global u_position
     global u_number
-    global board
+    global gridnp
+    global gridl
     global newg_frame
     global cList
     root.iconify()
 #Game Part
     #Generate a sudoku grid
-    grid=generate_grid(0.9)
-    #Setting the grid of interaction
-    board=manip_grid(grid)
+    grid=generate_grid(0.4)
+    #Setting the grids of interaction
+    gridl=grid.board
+    gridnp=convert_sdk_to_np(grid)
 #Display Part
+    #Creating a new window
     new_game_window=tk.Toplevel(root)
-    #New Game Window
+    #Setting New Game Window
     new_game_window.resizable(False,False)
     new_game_window.title("Sudoku Game")
 
     #Frame on New Game Window
     newg_frame=tk.Frame(new_game_window, width=1000, height=750)
-    #newg_frame.grid_propagate(False)
     newg_frame.grid()
     
     #Widgets on Frame
@@ -211,10 +228,10 @@ def game_window():
     display_grid()
     
     #create the list of coordinates
-    cList=get_values_coord(board)
+    cList=get_values_coord(gridl)
     #filling the grid with the clues (to write)
     for element in cList:
-        display_in_ugrid(element, board[element[0]][element[1]])
+        display_in_ugrid(element, gridnp[element[0], element[1]])
 
     #Binding the playcanv
     playcanv.bind('<ButtonPress-1>', playgridS)

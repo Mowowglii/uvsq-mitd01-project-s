@@ -505,20 +505,20 @@ def generateSDK():
     return grid
 
 #Function Test Zone
-grid = generate_empty()
-init_fill_algorithm(grid)
-fill_algorithm(grid)
+#grid = generate_empty()
+#init_fill_algorithm(grid)
+#fill_algorithm(grid)
 #while 0 in Lvalues:
 #    backtracking_coord_search(grid)
 #    backtracking_value_search(grid)
 #fill_algorithm(grid)
-print(grid)
-print(Lpath)
-print(len(Lpath))
-print(Lvalues)
-print(len(Lvalues))
-print(grid_valid(grid))
-print(blocking_id(grid))
+#print(grid)
+#print(Lpath)
+#print(len(Lpath))
+#print(Lvalues)
+#print(len(Lvalues))
+#print(grid_valid(grid))
+#print(blocking_id(grid))
 #Grid Verification Test Area
 #grid= np.array([
 #  [3, 9, 1, 2, 8, 6, 5, 7, 4],
