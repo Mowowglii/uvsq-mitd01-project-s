@@ -46,14 +46,14 @@ def inject(grid:np.ndarray, coordinate:tuple[int], value:int):
     #Injecting the value inside of the grid
     grid[coordinate[0], coordinate[1]]=value
 
-def erase(grid:list, coordinate:tuple[int]):
+def erase(grid:np.ndarray, coordinate:tuple[int]):
     """Erase the content of a cell
 
     Args:
-        grid (list): the play grid
+        grid (np.ndarray): the play grid
         coordinate (tuple[int]): the position of the user where he want to erase
     """
-    grid[coordinate[0]][coordinate[1]]=None
+    grid[coordinate[0], coordinate[1]]=0
 
 def convert_sdk_to_np(grid:sdk.Sudoku)->np.ndarray:
     """Convert a object of type sdk.Sudoku to a np.ndarray

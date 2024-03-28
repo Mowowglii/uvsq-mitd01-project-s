@@ -87,7 +87,7 @@ def erase_value(coordinate:tuple[int]):
     #Checking if the coordinate is a clue
     if coordinate not in cList:
     #Erase the value in board
-        erase(gridl, coordinate)
+        erase(gridnp, coordinate)
     #Erase in user interface
         #recover the id of the item
         txt_id = ids_pgtxt.get(str(coordinate))
@@ -184,7 +184,7 @@ def game_window():
     global u_position
     global u_number
     global gridnp
-    global gridl
+    global grid
     global newg_frame
     global cList
     root.iconify()
