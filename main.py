@@ -1,4 +1,5 @@
 #Imports
+from mysdkgenerator import grid_valid
 from sdklibmyfunc import *
 import tkinter as tk
 
@@ -6,9 +7,11 @@ import tkinter as tk
 #Setting a dictionary to store the IDs of play grid texts
 ids_pgtxt={}
 ids_cell={}
+
 #Game global Variables
 u_position=None
 u_number=None
+coorderrorL=[]
 
 #Link beetween GUI and Game functions
 
@@ -30,13 +33,28 @@ def usern_selection(number:int):
     """
     global u_number
     global u_position
+    global coorderrorL
     #Setting the global variable of user_number
     u_number=number
-    if u_position not in cList:
+    if u_position not in cList and gridnp[u_position[0], u_position[1]]==0:
         #Injecting the value in board
         inject(gridnp, u_position, u_number)
         #Displaying in the user interface
         display_in_ugrid(u_position, u_number)
+    #Checking if the game ends
+    if grid_valid(gridnp)==True:
+        #loop looking for each cell
+        for cellid in list(ids_cell.values()):
+            playcanv.itemconfig(cellid, fill="#D5F5E3", outline="black")
+    else:
+        if not(get_error_coord(gridnp) is None):
+            coorderrorL=get_error_coord(gridnp)
+            #looking each coordinate in error coord
+            for coordinate in coorderrorL:
+                #Recover the cell id
+                idc=ids_cell.get(coordinate)
+                #Highlight this cell in red
+                playcanv.itemconfig(idc, fill="#F1948A", outline="black")
 
 #Display or GUI Functions
 def default_highlight_cell(coordinate:tuple[int]):
@@ -45,7 +63,15 @@ def default_highlight_cell(coordinate:tuple[int]):
     Args:
         coordinate (tuple[int]): the coordinate of the cell
     """
-    #reset all the cells configuration
+    global coorderrorL
+    #if len(coorderrorL)!=0:
+    #    #reset all the cells configuration except the error coordinates
+    #    for cids,coord in zip(list(ids_cell.values()), list(ids_cell.keys())):
+    #        if coord not in coorderrorL:
+    #            playcanv.itemconfig(cids, fill="white", outline="black")
+    #        else:
+    #            playcanv.itemconfig(cids, fill="#F1948A", outline="black")
+    #else:
     for cids in list(ids_cell.values()):
         playcanv.itemconfig(cids, fill="white", outline="black")
     #recover the coordinates of every cells that has to be highlighted
@@ -94,6 +120,26 @@ def erase_value(coordinate:tuple[int]):
         #erase in user interface
         playcanv.type(txt_id)
         playcanv.delete(txt_id)
+    #Checking if the user remove an error and go back to default
+    if u_position in coorderrorL:
+        #set a pointer looking at the error coordinates
+        for coordinates in coorderrorL:
+            if coordinates == u_position:
+                #recover the id of the error cell
+                ercellid=ids_cell.get(coordinates)
+                #configure the item to its default
+                playcanv.itemconfig(ercellid, fill="#D6EAF8", outline="black")
+            #Checking if that coord is in the default _coord_showL
+            elif coordinates in default_coord_showL(u_position):
+                #recover the id of the error cell
+                ercellid=ids_cell.get(coordinates)
+                #configure the item to its default
+                playcanv.itemconfig(ercellid, fill="#D6EAF8", outline="black")
+            else:
+                #recover the id of the error cell
+                ercelid=ids_cell.get(coordinates)
+                #configure the item to its default
+                playcanv.itemconfig(ercelid, fill="white", outline="black")
 
 def caseindex_to_casepx(x_pos:int, y_pos:int)->list[int,int]:
     """Convert Case Index position to Case Pixel position in canva
@@ -190,7 +236,7 @@ def game_window():
     root.iconify()
 #Game Part
     #Generate a sudoku grid
-    grid=generate_grid(0.4)
+    grid=generate_grid(0.03)
     #Setting the grids of interaction
     gridl=grid.board
     gridnp=convert_sdk_to_np(grid)

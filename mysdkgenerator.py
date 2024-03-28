@@ -10,7 +10,7 @@ def Sgrid_li_and_col_verification(grid:np.ndarray, return_info:bool=False):
 
     Returns:
         bool: True if test is valid, False if not. Default return
-        list[bool, int,list[list[int]]]: [bool if test is valid, error value, list of coordinates[row, column]]
+        list[bool, int,list[tuple[int]]]: [bool if test is valid, error value, list of coordinates[row, column]]
     """
     state=True
     for i,t in zip([m for m in range(np.shape(grid)[0])],[l for l in range(np.shape(grid)[1])]):
@@ -20,13 +20,13 @@ def Sgrid_li_and_col_verification(grid:np.ndarray, return_info:bool=False):
         value2, count2 = np.unique(column, return_counts=True)
         for val1,coun1 in zip(value1,count1):
             if val1<=9 and val1>=1 and coun1 > 1:
-                indexlist=[[i, np.where(line==val1)[0][q]] for q in range(np.shape(np.where(line==val1)[0])[0])]
+                indexlist=[(i, np.where(line==val1)[0][q]) for q in range(np.shape(np.where(line==val1)[0])[0])]
                 state=False
                 if return_info==True:
                     return [state, val1, indexlist]
         for val2,coun2 in zip(value2,count2):
             if val2>=1 and val2<= 9 and coun2 > 1:
-                indexlist=[[np.where(column==val2)[0][h],t] for h in range(np.shape(np.where(column==val2)[0])[0])]
+                indexlist=[(np.where(column==val2)[0][h],t) for h in range(np.shape(np.where(column==val2)[0])[0])]
                 state = False
                 if return_info==True:
                     return [state, val2, indexlist]
@@ -40,7 +40,7 @@ def Sgrid_all_regions_verification(grid:np.ndarray, return_info:bool=False):
         return_info (bool): return all the infos. Default set to False
     Returns:
         bool: True if the regions are valid, False if the regions aren't
-        list[bool, int, int, list[list[int]]]: [bool if test is valid, region, value, list of coordinates[row,column]]
+        list[bool, int, int, list[tuple[int]]]: [bool if test is valid, region, value, list of coordinates[row,column]]
     """
     state = True
     #Regions treatment
@@ -52,7 +52,7 @@ def Sgrid_all_regions_verification(grid:np.ndarray, return_info:bool=False):
             value,count=np.unique(region, return_counts=True)
             for v,c in zip(value,count):
                 if v<=9 and v>=1 and c>1:
-                    indexlist=[[line+(np.where(region==v)[0][g]//3), column+np.where(region==v)[0][g]%3] for g in range(np.shape(np.where(region==v)[0])[0])]
+                    indexlist=[(line+(np.where(region==v)[0][g]//3), column+np.where(region==v)[0][g]%3) for g in range(np.shape(np.where(region==v)[0])[0])]
                     state=False
                     if return_info==True:
                         return [state, v, indexlist]

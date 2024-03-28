@@ -90,4 +90,42 @@ def default_coord_showL(coordinates:tuple[int])->list[tuple[int]]:
     coordlist=coords_columns(egrid, coordinates)+coords_lines(egrid, coordinates[0])+coords_reg(egrid, coordinates)
     return coordlist
 
+def get_error_coord(grid:np.ndarray)->list[tuple[int], int]:
+    """Get the error coordinates
+
+    Args:
+        grid (np.ndarray): the grid we are looking for error
+
+    Returns:
+        list[tuple[int], int]: the list of the reason there is an error
+    """
+    #Init the result return
+    definitiveL=[]
+    #If Both doesn't contain error
+    if Sgrid_all_regions_verification(grid)==True and Sgrid_li_and_col_verification(grid)==True:
+        return None
+    #If one of the checking doesn't contain any error
+    elif Sgrid_li_and_col_verification(grid)==True:
+        #Gets all the coordinate of error
+        for coordinate in Sgrid_all_regions_verification(grid, return_info=True)[2]:
+            #Recover unique coordiantes
+            if coordinate not in definitiveL:
+                definitiveL.append(coordinate)
+        return definitiveL
+    elif Sgrid_all_regions_verification(grid)==True:
+        #Gets all the coordinate of error
+        for coordinate in Sgrid_li_and_col_verification(grid, return_info=True)[2]:
+            #Recover unique coordiantes
+            if coordinate not in definitiveL:
+                definitiveL.append(coordinate)
+        return definitiveL
+    else:
+        #Gets all the coordinate of error
+        for coordinate in Sgrid_li_and_col_verification(grid, return_info=True)[2]+Sgrid_all_regions_verification(grid, return_info=True)[2]:
+            #Recover unique coordiantes
+            if coordinate not in definitiveL:
+                definitiveL.append(coordinate)
+        return definitiveL
+    
+
 #Testing Zone
