@@ -11,8 +11,7 @@ def generate_grid(difficulty:int=0.4):
     
     """
     #generate the grid via the library
-    grid=sdk.Sudoku(3).difficulty(difficulty)
-    return grid
+    return sdk.Sudoku(3).difficulty(difficulty)
 
 def get_values_coord(grid:list)->list[tuple[int]]:
     """Gives the clues coordinate in the grid

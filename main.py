@@ -236,7 +236,9 @@ def game_window():
     root.iconify()
 #Game Part
     #Generate a sudoku grid
-    grid=generate_grid(0.03)
+    grid=generate_grid(0.80)
+    solution=grid.solve()
+    solution.show_full()
     #Setting the grids of interaction
     gridl=grid.board
     gridnp=convert_sdk_to_np(grid)
