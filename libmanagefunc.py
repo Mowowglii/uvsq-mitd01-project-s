@@ -1,4 +1,4 @@
-from mysdkgenerator import *
+from mysdkfunc import *
 import numpy as np
 import sudoku as sdk
 
