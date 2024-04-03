@@ -4,15 +4,6 @@ import sudoku as sdk
 
 #Global Variables
 
-def generate_grid(difficulty:int=0.4):
-    """generate a sudoku grid using the sudoku library
-    Args:
-        difficulty (int): beetween number beetween 0 and 1, set the difficulty of the grid. Default set to max difficulty (0.8)
-    
-    """
-    #generate the grid via the library
-    return sdk.Sudoku(3).difficulty(difficulty)
-
 def get_values_coord(grid:list)->list[tuple[int]]:
     """Gives the clues coordinate in the grid
 
