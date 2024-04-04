@@ -1,5 +1,6 @@
 #Imports
 from mysdkfunc import grid_valid
+from savefunc import save_state
 from libmanagefunc import *
 import sudoku as sdk
 import tkinter as tk
@@ -7,17 +8,7 @@ import shutil
 import sys
 import time
 import threading
-
-#Global Dictionary or List
-#Setting a dictionary to store the IDs of play grid texts
-ids_pgtxt={}
-ids_cell={}
-
-#Game global Variables
-u_position=None
-u_number=None
-coorderrorL=[]
-errorcount=0
+import json
 
 #Link beetween GUI and Game functions
 
@@ -45,7 +36,7 @@ def usern_selection(number:int):
     #Setting the global variable of user_number
     u_number=number
     if u_position not in cList and gridnp[u_position[0], u_position[1]]==0:
-        #Injecting the value in board
+        #Injecting the value in numpy board
         inject(gridnp, u_position, u_number)
         #Displaying in the user interface
         display_in_ugrid(u_position, u_number)
@@ -65,25 +56,96 @@ def usern_selection(number:int):
             #looking each coordinate in error coord
             for coordinate in coorderrorL:
                 #Recover the cell id
-                idc=ids_cell.get(coordinate)
+                idc=ids_cell.get(str(coordinate))
                 #Highlight this cell in red
                 playcanv.itemconfig(idc, fill="#F1948A", outline="black")
 
 #Display or GUI Functions
+#This Function must be completed
+def load_game():
+    """Set all information for a loaded game
+    """
+    with open("savefiles/save_state.json", "r") as f:
+        data_in_json=f.read()
+    savedata=json.loads(data_in_json)
+    pass
+
+def new_game():
+    """Set all information for a new game
+    """
+    global gridnp
+    global grid
+    global gridl
+    global ids_cell
+    global ids_pgtxt
+    global time_str
+    global u_position
+    global u_number
+    global coorderrorL
+    global errorcount
+    global defaultminute
+    global defaultseconds
+    global difficulty
+    #Setting global Dictionary or List
+    #Setting a dictionary to store the IDs of play grid texts
+    ids_pgtxt={}
+    ids_cell={}
+
+    #Setting global game variables
+    #Init the variable containing time in display
+    time_str=""
+    u_position=(0,0)
+    u_number=None
+    coorderrorL=[]
+    errorcount=0
+    defaultminute=0
+    defaultseconds=0
+
+    #All About Difficulty
+    #easy is set to 0.54 (54% of the grid is blank)
+    #medium is set to 0.63 (63% of the grid is blank)
+    #hard is set to 0.65 (65% of the grid is blank)
+    #very Hard is set to 0.73 (73% of the grid is blank)
+    #god Mod is set to 0.80 (80% of the grid is blank)
+    difficulty = 0.54 #(default to easy mode)
+    #Generate a sudoku grid
+    grid=sdk.Sudoku(3, seed=rd.randint(0,sys.maxsize)).difficulty(difficulty)
+    #Setting the grids of interaction
+    gridl=grid.board
+    gridnp=convert_sdk_to_np(grid)
+    game_window()
+
 def time_counter():
     """Chronometer setting the time passed since the start of the game (made by ChatGPT)
     """
     global timelabel
     global new_game_window
+    global defaultminute
+    global defaultseconds
+    global minutes 
+    global seconds
     #Time management (Made by ChatGPT)
     start_time=time.time() # Get the starting time
     # Run the chronometer until interrupted
     while grid_valid(gridnp)!=True and new_game_window.winfo_exists():
         elapsed_time = time.time() - start_time  # Calculate elapsed time
-        minutes, seconds = divmod(elapsed_time, 60)
-        time_str=f"{int(minutes)}:{int(seconds)}"
+        min, sec = divmod(elapsed_time, 60) #Calculate the value of minutes and seconds from the elapsed time
+        minutes = defaultminute+ int(min)#calculate the total minutes player has been playing
+        seconds = defaultseconds + int(sec)#calculate the total secodns player has been playing
+        #Display the time on the extracanvas
+        if int(minutes) >= 10 and int(seconds) >= 10:
+            time_str=f"{int(minutes)}:{int(seconds)}"
+        elif int(minutes)<10 and int(seconds)<10:
+            time_str=f"{str(0)+str(int(minutes))}:{str(0)+str(int(seconds))}"
+        elif int(minutes)<10 and int(seconds)>=10:
+            time_str=f"{str(0)+str(int(minutes))}:{int(seconds)}"
+        if int(seconds)<10 and int(minutes)>=10:
+            time_str=f"{int(minutes)}:{str(0)+str(int(seconds))}"
+        #Configure the label that will contain the time
         timelabel.config(text=time_str, font=("ClearSans", 10, "bold"))
         time.sleep(0.1)
+        if not(new_game_window.winfo_exists()):
+            return
 
 def default_highlight_cell(coordinate:tuple[int]):
     """Highlight the cells in the same column, line and region of the user position
@@ -105,11 +167,11 @@ def default_highlight_cell(coordinate:tuple[int]):
     #recover the coordinates of every cells that has to be highlighted
     for coordinates in default_coord_showL(coordinate):
         #recover the id of the cell in canvas
-        cell_id=ids_cell.get(coordinates)
+        cell_id=ids_cell.get(str(coordinates))
         #highlight the cell
         playcanv.itemconfig(cell_id, fill="#D6EAF8")
     #recover the id of the coordinate cell in canvas
-    coord_cell_id=ids_cell.get(coordinate)
+    coord_cell_id=ids_cell.get(str(coordinate))
     #highlight the cell a little bit darker than everyone else
     playcanv.itemconfig(coord_cell_id, fill="#85C1E9")
 
@@ -154,18 +216,18 @@ def erase_value(coordinate:tuple[int]):
         for coordinates in coorderrorL:
             if coordinates == u_position:
                 #recover the id of the error cell
-                ercellid=ids_cell.get(coordinates)
+                ercellid=ids_cell.get(str(coordinates))
                 #configure the item to its default
                 playcanv.itemconfig(ercellid, fill="#85C1E9", outline="black")
             #Checking if that coord is in the default _coord_showL
             elif coordinates in default_coord_showL(u_position):
                 #recover the id of the error cell
-                ercellid=ids_cell.get(coordinates)
+                ercellid=ids_cell.get(str(coordinates))
                 #configure the item to its default
                 playcanv.itemconfig(ercellid, fill="#D6EAF8", outline="black")
             else:
                 #recover the id of the error cell
-                ercelid=ids_cell.get(coordinates)
+                ercelid=ids_cell.get(str(coordinates))
                 #configure the item to its default
                 playcanv.itemconfig(ercelid, fill="white", outline="black")
 
@@ -225,7 +287,7 @@ def display_grid():
             #Create the rectangle and set its ID
             cell_id=playcanv.create_rectangle(x0, y0, x1, y1, fill="white", outline="black")
             #add the rectangle ID in id dictionary
-            ids_cell[(y,x)]=cell_id
+            ids_cell[str((y,x))]=cell_id
             #update the coordinates
             if x < 8:
                 x+=1
@@ -274,17 +336,12 @@ def game_window():
     global u_number
     global gridnp
     global grid
+    global gridl
     global newg_frame
     global cList
     global errorlabel
     global timelabel
     root.iconify()
-#Game Part
-    #Generate a sudoku grid
-    grid=sdk.Sudoku(3, seed=rd.randint(0,sys.maxsize)).difficulty(0.1)
-    #Setting the grids of interaction
-    gridl=grid.board
-    gridnp=convert_sdk_to_np(grid)
 #Display Part
     #Creating a new window
     new_game_window=tk.Toplevel(root)
@@ -351,12 +408,12 @@ def game_window():
     
     #Widgets in Extra Canva
     nbutton=tk.Checkbutton(extracanv, text="Note Mode", font=("CleanSans",10), relief="groove")
-    sbutton=tk.Button(extracanv, text="Save State", font=("CleanSans", 10), relief="groove")
+    sbutton=tk.Button(extracanv, text="Save State", font=("CleanSans", 10), relief="groove", command=lambda:(save_state(gridl, gridnp, u_position, errorcount, ids_pgtxt, ids_cell, coorderrorL, minutes, seconds, difficulty)))
     ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans", 10), relief="groove", command=lambda:erase_value(u_position))
     qbutton=tk.Button(extracanv, text="Give up", font=("CleanSans", 10), relief="groove", command=new_game_window.destroy)
     namelabel=tk.Label(extracanv, text="New Grid", font=("CleanSans", 16, "bold"))
     difficlabel=tk.Label(extracanv, text="Difficulty", font=("CleanSans", 14, "bold"))
-    timelabel=tk.Label(extracanv, text="00:00", font=("ClearSans", 10, "bold"))
+    timelabel=tk.Label(extracanv, text=time_str, font=("ClearSans", 10, "bold"))
     errorlabel=tk.Label(extracanv, text="0 errors", font=("CleanSans", 10, "bold"))
     
     #Updating the time display in background
@@ -399,7 +456,7 @@ menuframe.grid()
 #Widgets
 #Widgets on menu frame
 titlemenu=tk.Label(menuframe, text="Sudoku Game ", font=("tahoma", 14, "bold"), anchor="center")
-newgb=tk.Button(menuframe, text="New Game", padx=5, pady=5, command=game_window)
+newgb=tk.Button(menuframe, text="New Game", padx=5, pady=5, command=new_game)
 loadgb=tk.Button(menuframe, text="Load Game", padx=5, pady=5)
 playoldb=tk.Button(menuframe, text="Play Old Ones", padx=5, pady=5)
 quitb=tk.Button(menuframe, text="Quit", command=root.quit, padx=5, pady=5)

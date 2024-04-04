@@ -34,7 +34,7 @@ def inject(grid:np.ndarray, coordinate:tuple[int], value:int):
     #Debugging part 
     assert coordinate not in get_values_coord(grid)
     #Injecting the value inside of the grid
-    grid[coordinate[0], coordinate[1]]=value
+    grid[coordinate[0], coordinate[1]]=np.uint8(value)
 
 def erase(grid:np.ndarray, coordinate:tuple[int]):
     """Erase the content of a cell
@@ -43,7 +43,7 @@ def erase(grid:np.ndarray, coordinate:tuple[int]):
         grid (np.ndarray): the play grid
         coordinate (tuple[int]): the position of the user where he want to erase
     """
-    grid[coordinate[0], coordinate[1]]=0
+    grid[coordinate[0], coordinate[1]]=np.uint8(0)
 
 def convert_sdk_to_np(grid:sdk.Sudoku)->np.ndarray:
     """Convert a object of type sdk.Sudoku to a np.ndarray
@@ -55,7 +55,7 @@ def convert_sdk_to_np(grid:sdk.Sudoku)->np.ndarray:
         np.ndarray: the converted grid
     """
     #create an array of zeros
-    npgrid=np.zeros((9,9), dtype=np.int8)
+    npgrid=np.zeros((9,9), dtype=np.uint8)
     #Convert the grid to a list using board method
     grid=grid.board
     #getting givens coordinate from the grid and store them in the array created
