@@ -61,7 +61,7 @@ def usern_selection(number:int):
             #Update the error count
             errorcount+=1
             #update the label of error
-            errorlabel.config(text=f"{errorcount} errors")
+            errorlabel.config(text=f"{errorcount} errors", font=("CleanSans", 10, "bold"))
             #looking each coordinate in error coord
             for coordinate in coorderrorL:
                 #Recover the cell id
@@ -82,7 +82,7 @@ def time_counter():
         elapsed_time = time.time() - start_time  # Calculate elapsed time
         minutes, seconds = divmod(elapsed_time, 60)
         time_str=f"{int(minutes)}:{int(seconds)}"
-        timelabel.config(text=time_str)
+        timelabel.config(text=time_str, font=("ClearSans", 10, "bold"))
         time.sleep(0.1)
 
 def default_highlight_cell(coordinate:tuple[int]):
@@ -299,7 +299,7 @@ def game_window():
     #Widgets on Frame
     playcanv=tk.Canvas(newg_frame, width=702, height=702, borderwidth=5, relief="sunken")
     selectbcanv=tk.Canvas(newg_frame, width=225, height=225, borderwidth=5, relief="sunken")
-    extracanv=tk.Canvas(newg_frame, width=225, height=225, borderwidth=5, relief="ridge")
+    extracanv=tk.Canvas(newg_frame, width=250, height=250, borderwidth=5, relief="ridge")
     
     #Extra Canva Configuration
     extracanv.grid_propagate(False)
@@ -351,13 +351,13 @@ def game_window():
     
     #Widgets in Extra Canva
     nbutton=tk.Checkbutton(extracanv, text="Note Mode", font=("CleanSans",10), relief="groove")
-    sbutton=tk.Button(extracanv, text="Save", font=("CleanSans", 10), relief="groove")
+    sbutton=tk.Button(extracanv, text="Save State", font=("CleanSans", 10), relief="groove")
     ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans", 10), relief="groove", command=lambda:erase_value(u_position))
     qbutton=tk.Button(extracanv, text="Give up", font=("CleanSans", 10), relief="groove", command=new_game_window.destroy)
     namelabel=tk.Label(extracanv, text="New Grid", font=("CleanSans", 16, "bold"))
     difficlabel=tk.Label(extracanv, text="Difficulty", font=("CleanSans", 14, "bold"))
-    timelabel=tk.Label(extracanv, text="00:00", font=("ClearSans", 10))
-    errorlabel=tk.Label(extracanv, text=f"{errorcount} errors", font=("CleanSans", 10))
+    timelabel=tk.Label(extracanv, text="00:00", font=("ClearSans", 10, "bold"))
+    errorlabel=tk.Label(extracanv, text="0 errors", font=("CleanSans", 10, "bold"))
     
     #Updating the time display in background
     # Start the time counter function in a separate thread (Every code lines in link with time has been made by Chatgpt)
