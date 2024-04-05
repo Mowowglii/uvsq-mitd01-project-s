@@ -27,7 +27,7 @@ def save_state(gridsdkboard:list, gridnp:np.ndarray, user_pos:list[tuple[int]], 
     save_data={
         "gridname":"Lastgrid", 
         "gridsdkboard":list(gridsdkboard) ,
-        "gridnp":gridL, 
+        "gridl":gridL, 
         "user_pos":list(user_pos), 
         "error_count":error_count, 
         "ids_txt":ids_text, 

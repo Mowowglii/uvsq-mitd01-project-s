@@ -10,6 +10,9 @@ import time
 import threading
 import json
 
+#Init the variable containing time in display
+time_str=""
+
 #Link beetween GUI and Game functions
 
 def playgridS(event=tk.Event):
@@ -61,14 +64,75 @@ def usern_selection(number:int):
                 playcanv.itemconfig(idc, fill="#F1948A", outline="black")
 
 #Display or GUI Functions
-#This Function must be completed
+
+def diffic_name(difficulty:float)->str:
+    """Gives the difficulty following the blank/total cells ratio 
+    All About Difficulty:
+        -easy is set to 0.54 (54% of the grid is blank)
+        -medium is set to 0.63 (63% of the grid is blank)
+        -hard is set to 0.65 (65% of the grid is blank)
+        -very Hard is set to 0.73 (73% of the grid is blank)
+        -god Mode is set to 0.80 (80% of the grid is blank)
+    Args:
+        difficulty (float): the ratio blank/total cells
+
+    Returns:
+        str: the difficulty of the grid
+    """
+    if difficulty == 0.54:
+        return "Easy Mode"
+    elif difficulty == 0.63:
+        return "Medium Mode"
+    elif difficulty == 0.65:
+        return "Hard Mode"
+    elif difficulty == 0.73:
+        return "Very Hard Mode"
+    elif difficulty == 0.80:
+        return "God Mode"
+    else:
+        return "Personalized Difficulty"
+
 def load_game():
     """Set all information for a loaded game
     """
-    with open("savefiles/save_state.json", "r") as f:
+    global gridnp
+    global grid
+    global gridl
+    global ids_cell
+    global ids_pgtxt
+    global time_str
+    global u_position
+    global u_number
+    global coorderrorL
+    global errorcount
+    global defaultminute
+    global defaultseconds
+    global difficulty
+    global gridname
+    global d_name
+    #Recover the saved data
+    with open("savesfiles/save_state.json", "r") as f:
         data_in_json=f.read()
     savedata=json.loads(data_in_json)
-    pass
+    #Loading every games informations
+    gridname = savedata["gridname"]
+    grid = sdk.Sudoku(3,3, board=savedata["gridsdkboard"])
+    print(type(grid))
+    gridl = grid.board
+    gridnp = np.array(savedata["gridl"], dtype=np.uint8)
+    u_position = savedata["user_pos"]
+    u_number = 0
+    errorcount = savedata["error_count"]
+    ids_pgtxt = savedata["ids_txt"]
+    ids_cell = savedata["ids_cells"]
+    coorderrorL = savedata["coorderrorlist"]
+    defaultminute = savedata["minute"]
+    defaultseconds = savedata["seconds"]
+    difficulty = savedata["difficulty"]
+    #Naming the difficulty
+    d_name=diffic_name(difficulty)
+    #Run a game window
+    game_window()
 
 def new_game():
     """Set all information for a new game
@@ -86,28 +150,26 @@ def new_game():
     global defaultminute
     global defaultseconds
     global difficulty
+    global gridname
+    global d_name
+#Setting informations of the game
     #Setting global Dictionary or List
     #Setting a dictionary to store the IDs of play grid texts
     ids_pgtxt={}
     ids_cell={}
 
     #Setting global game variables
-    #Init the variable containing time in display
-    time_str=""
     u_position=(0,0)
     u_number=None
     coorderrorL=[]
     errorcount=0
     defaultminute=0
     defaultseconds=0
-
-    #All About Difficulty
-    #easy is set to 0.54 (54% of the grid is blank)
-    #medium is set to 0.63 (63% of the grid is blank)
-    #hard is set to 0.65 (65% of the grid is blank)
-    #very Hard is set to 0.73 (73% of the grid is blank)
-    #god Mod is set to 0.80 (80% of the grid is blank)
-    difficulty = 0.54 #(default to easy mode)
+    gridname="New Grid"
+    #(default to easy mode)
+    difficulty = 0.54
+    #Naming the difficulty
+    d_name=diffic_name(difficulty)
     #Generate a sudoku grid
     grid=sdk.Sudoku(3, seed=rd.randint(0,sys.maxsize)).difficulty(difficulty)
     #Setting the grids of interaction
@@ -411,8 +473,8 @@ def game_window():
     sbutton=tk.Button(extracanv, text="Save State", font=("CleanSans", 10), relief="groove", command=lambda:(save_state(gridl, gridnp, u_position, errorcount, ids_pgtxt, ids_cell, coorderrorL, minutes, seconds, difficulty)))
     ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans", 10), relief="groove", command=lambda:erase_value(u_position))
     qbutton=tk.Button(extracanv, text="Give up", font=("CleanSans", 10), relief="groove", command=new_game_window.destroy)
-    namelabel=tk.Label(extracanv, text="New Grid", font=("CleanSans", 16, "bold"))
-    difficlabel=tk.Label(extracanv, text="Difficulty", font=("CleanSans", 14, "bold"))
+    namelabel=tk.Label(extracanv, text=gridname, font=("CleanSans", 16, "bold"))
+    difficlabel=tk.Label(extracanv, text=d_name, font=("CleanSans", 14, "bold"))
     timelabel=tk.Label(extracanv, text=time_str, font=("ClearSans", 10, "bold"))
     errorlabel=tk.Label(extracanv, text="0 errors", font=("CleanSans", 10, "bold"))
     
@@ -457,7 +519,7 @@ menuframe.grid()
 #Widgets on menu frame
 titlemenu=tk.Label(menuframe, text="Sudoku Game ", font=("tahoma", 14, "bold"), anchor="center")
 newgb=tk.Button(menuframe, text="New Game", padx=5, pady=5, command=new_game)
-loadgb=tk.Button(menuframe, text="Load Game", padx=5, pady=5)
+loadgb=tk.Button(menuframe, text="Load Game", padx=5, pady=5, command=load_game)
 playoldb=tk.Button(menuframe, text="Play Old Ones", padx=5, pady=5)
 quitb=tk.Button(menuframe, text="Quit", command=root.quit, padx=5, pady=5)
 menuloc=tk.Label(menuframe, text="Menu", font=("tahoma", 8, "italic"))
