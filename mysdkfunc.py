@@ -59,15 +59,6 @@ def Sgrid_all_regions_verification(grid:np.ndarray, return_info:bool=False):
                     break
     return state
 
-def generate_empty()->np.ndarray:
-    """Generate an 9x9 empty grid
-
-    Returns:
-        np.ndarray: an empty grid
-    """
-    grid=np.zeros((9,9), dtype=np.int8)
-    return grid
-
 def line_possibility(grid:np.ndarray, return_forbidden:bool=False)->list[list[int]]:
     """Check values possibility in each line of the grid
 
@@ -310,6 +301,18 @@ def grid_valid(grid:np.ndarray)->bool:
         return True
     else:
         return False
+
+
+"""HERE ARE THE FUNCTION I'VE TRIED TO DO FOR GRID GENERATION"""
+
+def generate_empty()->np.ndarray:
+    """Generate an 9x9 empty grid
+
+    Returns:
+        np.ndarray: an empty grid
+    """
+    grid=np.zeros((9,9), dtype=np.int8)
+    return grid
 
 def init_fill_algorithm(grid:np.ndarray)->np.ndarray:
     """Init a Sudoku Grid Filling
