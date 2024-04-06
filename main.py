@@ -4,6 +4,7 @@ from savefunc import save_state
 from libmanagefunc import *
 import sudoku as sdk
 import tkinter as tk
+from tkinter import messagebox
 import shutil
 import sys
 import time
@@ -22,11 +23,17 @@ def playgridS(event=tk.Event):
         event (tk.Event, optional): The event generated (here is click)
     """
     global u_position
+    #Checking if an error was done in the previous player move
+    if not(u_position is None) and not(get_error_coord(gridnp) is None) and u_position in get_error_coord(gridnp):
+        #delete the value inside of the last position
+        erase_value(u_position)
+    #Setting the new value of position
     u_position=mouse_to_case(event.x, event.y)
+    #Display help for the user to choose a number
     default_highlight_cell(u_position)
     
 def usern_selection(number:int):
-    """Set User Selected number
+    """
 
     Args:
         number (int): The chosen number
@@ -38,17 +45,61 @@ def usern_selection(number:int):
     global errorlabel
     #Setting the global variable of user_number
     u_number=number
-    if u_position not in cList and gridnp[u_position[0], u_position[1]]==0:
+#The player is taking notes in the grid
+    #checking if the player can take notes and if he wants to take notes
+    if gridnp[u_position[0], u_position[1]]==0 and note_mode.get()==True:
+        #Checking if the position already have note
+        if str(u_position) in ids_notes:
+            #checking if the user number is already in cell
+            if str(u_number) in ids_notes[str(u_position)]:
+                erase_note(u_position, u_number)
+            #checking if the user number is not already in cell
+            elif str(u_number) not in ids_notes[str(u_position)]:
+                inject_note(u_position, u_number)
+        #Checking if the position doesn't have note
+        elif str(u_position) not in ids_notes:
+                #create the sub-dictionary
+                ids_notes[str(u_position)]={}
+                #inject the note
+                inject_note(u_position, u_number)
+#The player is injecting value in the grid
+    #Checking if the player can inject a value and if he don't want to note something
+    if u_position not in cList and gridnp[u_position[0], u_position[1]]==0 and note_mode.get()==False:
+        #Checking if there is any note in cell
+        if str(u_position) in ids_notes:
+            #erase every note in cell
+            for ids in ids_notes[str(u_position)].values():
+                playcanv.delete(ids)
+                #erase in dictionary
+            del ids_notes[str(u_position)]
         #Injecting the value in numpy board
         inject(gridnp, u_position, u_number)
         #Displaying in the user interface
         display_in_ugrid(u_position, u_number)
-    #Checking if the game ends
+        
+
+#Verifiyng game ends
     if grid_valid(gridnp)==True:
         #loop looking for each cell
         for cellid in list(ids_cell.values()):
+            #Highlight every cells in green
             playcanv.itemconfig(cellid, fill="#D5F5E3", outline="black")
+            #Stop binding
+            playcanv.unbind('<ButtonPress-1>')
+        #Stop buttons working
+            #Save button
+            sbutton.config(state=tk.DISABLED)
+            #Note Mode Button
+            nbutton.config(state=tk.DISABLED)
+            #Erase button
+            ebutton.config(state=tk.DISABLED)
+            #Loop looking at every widgets in the selection canva
+            for widget in selectbcanv.winfo_children():
+                #Disable every button
+                if isinstance(widget, tk.Button):
+                    widget.config(state=tk.DISABLED)
     else:
+        #Checking if there is an error in the grid
         if not(get_error_coord(gridnp) is None):
             #Recover every errors coordinate
             coorderrorL=get_error_coord(gridnp)
@@ -64,6 +115,43 @@ def usern_selection(number:int):
                 playcanv.itemconfig(idc, fill="#F1948A", outline="black")
 
 #Display or GUI Functions
+def erase_note(position:tuple[int],usern:int):
+    """Erase individualy the note of a value in a cell
+
+    Args:
+        position (tuple[int]): the position in grid
+        usern (int): the user number
+    """
+    #Delete the note in playcanv
+    playcanv.delete(ids_notes[str(position)][str(usern)])
+    #Delete the value in notes
+    del ids_notes[str(position)][str(usern)]
+
+def inject_note(position:tuple[int], usern:int):
+    """Create notes in a cell of the grid
+
+    Args:
+        position (tuple[int]): the position in grid
+        usern (int): the number user choosed
+    """
+    global playcanv
+    global ids_notes
+    #Recovering the canva height and width
+    canvx = playcanv.winfo_reqwidth()
+    canvy = playcanv.winfo_reqheight()
+    #Recovering the cell x0 and y0 position in canva (px)
+    casexpos=position[1]*(canvx/9)
+    caseypos=position[0]*(canvy/9)
+    #Calculate the pixel position of a text in a cell (Formulas given by ChatGPT)
+    xtextincell = ((((usern-1)%3)+1)/4)*(canvx/9)
+    ytextincell = (int((usern+2)/3)/4)*(canvy/9)
+    #Calculate the pixel position of text in canvas
+    xtextincanv=casexpos+xtextincell
+    ytextincanv=caseypos+ytextincell
+    #Create text in canva at positions
+    noteid=playcanv.create_text(xtextincanv, ytextincanv, text=usern, font=("CleanSans", 10, "bold"))
+    #Catch the id in a temporary dictionary
+    ids_notes[str(position)].update({str(usern):noteid})
 
 def diffic_name(difficulty:float)->str:
     """Gives the difficulty following the blank/total cells ratio 
@@ -110,6 +198,7 @@ def load_game():
     global difficulty
     global gridname
     global d_name
+    global ids_notes
     #Recover the saved data
     with open("savesfiles/save_state.json", "r") as f:
         data_in_json=f.read()
@@ -117,7 +206,6 @@ def load_game():
     #Loading every games informations
     gridname = savedata["gridname"]
     grid = sdk.Sudoku(3,3, board=savedata["gridsdkboard"])
-    print(type(grid))
     gridl = grid.board
     gridnp = np.array(savedata["gridl"], dtype=np.uint8)
     u_position = savedata["user_pos"]
@@ -125,6 +213,7 @@ def load_game():
     errorcount = savedata["error_count"]
     ids_pgtxt = savedata["ids_txt"]
     ids_cell = savedata["ids_cells"]
+    ids_notes = savedata["ids_notes"]
     coorderrorL = savedata["coorderrorlist"]
     defaultminute = savedata["minute"]
     defaultseconds = savedata["seconds"]
@@ -152,11 +241,13 @@ def new_game():
     global difficulty
     global gridname
     global d_name
+    global ids_notes
 #Setting informations of the game
     #Setting global Dictionary or List
     #Setting a dictionary to store the IDs of play grid texts
     ids_pgtxt={}
     ids_cell={}
+    ids_notes={}
 
     #Setting global game variables
     u_position=(0,0)
@@ -323,6 +414,21 @@ def mouse_to_case(x_pos:int, y_pos:int)->tuple[int]:
     canvaheight = playcanv.winfo_reqheight()
     return (int(y_pos//int(canvaheight/9)), int(x_pos//int(canvawidth/9)))
 
+def give_up():
+    """Quit the game window
+    """
+    global new_game_window
+    if messagebox.askokcancel("You are quitting !", "Are you sure you want to quit ?"):
+        #Clear every data used for the game
+        ids_cell.clear()
+        ids_pgtxt.clear()
+        u_position=None
+        u_number=None
+        errorcount=0
+        errorlabel.config(text=f"{errorcount} errors")
+        new_game_window.destroy()
+        root.deiconify()
+
 def display_grid():
     """Display Grid on the playcanva
 
@@ -380,6 +486,7 @@ def game_window_closed():
     #Clear every data used for the game
     ids_cell.clear()
     ids_pgtxt.clear()
+    ids_notes.clear()
     u_position=None
     u_number=None
     errorcount=0
@@ -403,8 +510,12 @@ def game_window():
     global cList
     global errorlabel
     global timelabel
+    global note_mode
+    global ebutton
+    global sbutton
+    global nbutton
+    #Iconify the root window
     root.iconify()
-#Display Part
     #Creating a new window
     new_game_window=tk.Toplevel(root)
     #Setting New Game Window
@@ -442,6 +553,11 @@ def game_window():
     #filling the grid with the clues (to write)
     for element in cList:
         display_in_ugrid(element, gridnp[element[0], element[1]])
+    
+    #Filling the grid with every notes
+    for coordinate in ids_notes:
+        for key_number in ids_notes[coordinate]:
+            inject_note((int(coordinate[1]), int(coordinate[4])), int(key_number))
 
     #Binding the playcanv
     playcanv.bind('<ButtonPress-1>', playgridS)
@@ -469,14 +585,24 @@ def game_window():
     b9.grid(row=2, column=2)
     
     #Widgets in Extra Canva
-    nbutton=tk.Checkbutton(extracanv, text="Note Mode", font=("CleanSans",10), relief="groove")
-    sbutton=tk.Button(extracanv, text="Save State", font=("CleanSans", 10), relief="groove", command=lambda:(save_state(gridl, gridnp, u_position, errorcount, ids_pgtxt, ids_cell, coorderrorL, minutes, seconds, difficulty)))
+    #The boolean variable for the checkbutton
+    note_mode=tk.BooleanVar()
+    #Checkbutton creation and parameters
+    nbutton=tk.Checkbutton(extracanv, text="Note Mode", font=("CleanSans",10), relief="groove", variable=note_mode)
+    #Save button creation and parameters
+    sbutton=tk.Button(extracanv, text="Save State", font=("CleanSans", 10), relief="groove", command=lambda:(save_state(gridl, gridnp, u_position, errorcount, ids_pgtxt, ids_cell, ids_notes, coorderrorL, minutes, seconds, difficulty)))
+    #Erase button creation and parameters
     ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans", 10), relief="groove", command=lambda:erase_value(u_position))
-    qbutton=tk.Button(extracanv, text="Give up", font=("CleanSans", 10), relief="groove", command=new_game_window.destroy)
+    #Give Up button creation and parameters
+    qbutton=tk.Button(extracanv, text="Give up", font=("CleanSans", 10), relief="groove", command=give_up)
+    #Display the Name of the grid
     namelabel=tk.Label(extracanv, text=gridname, font=("CleanSans", 16, "bold"))
+    #Display the level of difficulty
     difficlabel=tk.Label(extracanv, text=d_name, font=("CleanSans", 14, "bold"))
+    #Display the Time
     timelabel=tk.Label(extracanv, text=time_str, font=("ClearSans", 10, "bold"))
-    errorlabel=tk.Label(extracanv, text="0 errors", font=("CleanSans", 10, "bold"))
+    #Display the number of errors
+    errorlabel=tk.Label(extracanv, text=f"{errorcount} errors", font=("CleanSans", 10, "bold"))
     
     #Updating the time display in background
     # Start the time counter function in a separate thread (Every code lines in link with time has been made by Chatgpt)
@@ -523,6 +649,7 @@ loadgb=tk.Button(menuframe, text="Load Game", padx=5, pady=5, command=load_game)
 playoldb=tk.Button(menuframe, text="Play Old Ones", padx=5, pady=5)
 quitb=tk.Button(menuframe, text="Quit", command=root.quit, padx=5, pady=5)
 menuloc=tk.Label(menuframe, text="Menu", font=("tahoma", 8, "italic"))
+msgbox=tk.Message()
 
 #Display
 #Widgets on menu frame

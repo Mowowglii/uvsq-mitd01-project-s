@@ -2,7 +2,7 @@
 import json
 import numpy as np
 
-def save_state(gridsdkboard:list, gridnp:np.ndarray, user_pos:list[tuple[int]], error_count:int, ids_text:dict, ids_cells:dict, coorderrorList:list[tuple[int]], minutes:int, seconds:int, difficulty:float):
+def save_state(gridsdkboard:list, gridnp:np.ndarray, user_pos:list[tuple[int]], error_count:int, ids_text:dict, ids_cells:dict, ids_notes:dict, coorderrorList:list[tuple[int]], minutes:int, seconds:int, difficulty:float):
     """Save in a file informations of game
 
     Args:
@@ -12,6 +12,7 @@ def save_state(gridsdkboard:list, gridnp:np.ndarray, user_pos:list[tuple[int]], 
         error_count (int): number of error done
         ids_text (dict): the ids of the numbers displayed in the grid 
         ids_cells (dict): the ids of the cells forming the grid
+        ids_notes (dict): the ids of the notes on the grid
         coorderrorList (list[tuple[int]]): list of error coordinates
         minutes (int): total minutes player have been playing this grid
         seconds (int): total seconds player have been playing this grid
@@ -31,7 +32,8 @@ def save_state(gridsdkboard:list, gridnp:np.ndarray, user_pos:list[tuple[int]], 
         "user_pos":list(user_pos), 
         "error_count":error_count, 
         "ids_txt":ids_text, 
-        "ids_cells":ids_cells, 
+        "ids_cells":ids_cells,
+        "ids_notes":ids_notes,
         "coorderrorlist":new_coorderrorl, 
         "minute":minutes, "seconds":seconds, 
         "difficulty":difficulty
