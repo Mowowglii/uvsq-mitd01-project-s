@@ -25,10 +25,12 @@ def playgridS(event=tk.Event):
     global u_position
     #Checking if an error was done in the previous player move
     if not(u_position is None) and not(get_error_coord(gridnp) is None) and u_position in get_error_coord(gridnp):
-        #delete the value inside of the last position
+        #delete the value inside of the last position on display
         erase_value(u_position)
-    #Setting the new value of position
-    u_position=mouse_to_case(event.x, event.y)
+        #Setting the new value of position
+        u_position=mouse_to_case(event.x, event.y)
+    else:
+        u_position=mouse_to_case(event.x, event.y)
     #Display help for the user to choose a number
     default_highlight_cell(u_position)
     
@@ -98,6 +100,7 @@ def usern_selection(number:int):
                 #Disable every button
                 if isinstance(widget, tk.Button):
                     widget.config(state=tk.DISABLED)
+            
     else:
         #Checking if there is an error in the grid
         if not(get_error_coord(gridnp) is None):
@@ -208,13 +211,12 @@ def load_game():
     grid = sdk.Sudoku(3,3, board=savedata["gridsdkboard"])
     gridl = grid.board
     gridnp = np.array(savedata["gridl"], dtype=np.uint8)
-    u_position = savedata["user_pos"]
+    u_position=None
     u_number = 0
     errorcount = savedata["error_count"]
     ids_pgtxt = savedata["ids_txt"]
     ids_cell = savedata["ids_cells"]
     ids_notes = savedata["ids_notes"]
-    coorderrorL = savedata["coorderrorlist"]
     defaultminute = savedata["minute"]
     defaultseconds = savedata["seconds"]
     difficulty = savedata["difficulty"]
@@ -364,7 +366,6 @@ def erase_value(coordinate:tuple[int]):
         #recover the id of the item
         txt_id = ids_pgtxt.get(str(coordinate))
         #erase in user interface
-        playcanv.type(txt_id)
         playcanv.delete(txt_id)
     #Checking if the user remove an error and go back to default
     if u_position in coorderrorL:
@@ -496,7 +497,20 @@ def game_window_closed():
     errorlabel.config(text=f"{errorcount} errors")
     #quit the new game window
     new_game_window.destroy()
+
+def end_game():
+    """Set the window of end game"""
+    end_window=tk.Toplevel(root)
+    #Setting the display resizement to false
+    end_window.resizable(False)
     
+    #Widget on window
+    congrat=tk.Label(end_window, text="Congratulation You Have Win !", font=("ClearSans", 10, "bold"))
+    quit_button=tk.Button(end_window, text="Quit",command=lambda : (new_game_window.destroy, end_window.destroy))
+    save_but=tk.Button(end_window, text="Save Grid")
+    
+    pass
+
 def game_window():
     """Create a Sudoku Game Window"""
     global root
@@ -551,7 +565,7 @@ def game_window():
     #Displaying grid on playgrid
     display_grid()
     
-    #create the list of coordinates
+    #create the list of coordinates for clues
     cList=get_values_coord(gridl)
     #filling the grid with the clues (to write)
     for element in cList:
@@ -593,7 +607,7 @@ def game_window():
     #Checkbutton creation and parameters
     nbutton=tk.Checkbutton(extracanv, text="Note Mode", font=("CleanSans",10), relief="groove", variable=note_mode)
     #Save button creation and parameters
-    sbutton=tk.Button(extracanv, text="Save State", font=("CleanSans", 10), relief="groove", command=lambda:(save_state(gridl, gridnp, u_position, errorcount, ids_pgtxt, ids_cell, ids_notes, coorderrorL, minutes, seconds, difficulty)))
+    sbutton=tk.Button(extracanv, text="Save State", font=("CleanSans", 10), relief="groove", command=lambda:(save_state(gridl, gridnp, errorcount, ids_pgtxt, ids_cell, ids_notes, coorderrorL, minutes, seconds, difficulty)))
     #Erase button creation and parameters
     ebutton=tk.Button(extracanv, text="Erase", font=("CleanSans", 10), relief="groove", command=lambda:erase_value(u_position))
     #Give Up button creation and parameters

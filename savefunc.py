@@ -1,14 +1,14 @@
 #Imports
+from libmanagefunc import get_values_coord
 import json
 import numpy as np
 
-def save_state(gridsdkboard:list, gridnp:np.ndarray, user_pos:list[tuple[int]], error_count:int, ids_text:dict, ids_cells:dict, ids_notes:dict, coorderrorList:list[tuple[int]], minutes:int, seconds:int, difficulty:float):
+def save_state(gridsdkboard:list, gridnp:np.ndarray, error_count:int, ids_text:dict, ids_cells:dict, ids_notes:dict, coorderrorList:list[tuple[int]], minutes:int, seconds:int, difficulty:float):
     """Save in a file informations of game
 
     Args:
         gridsdk (list): The grid of game in format sdk.Sudoku (the original puzzle)
         grid (np.ndarray): the grid of game in format numpy array (with every modifications done by the user)
-        user_pos (tuple[int]): the last position of the user 
         error_count (int): number of error done
         ids_text (dict): the ids of the numbers displayed in the grid 
         ids_cells (dict): the ids of the cells forming the grid
@@ -18,23 +18,27 @@ def save_state(gridsdkboard:list, gridnp:np.ndarray, user_pos:list[tuple[int]], 
         seconds (int): total seconds player have been playing this grid
         difficulty (float): the difficulty of the grid puzzle
     """
+#Erase every error if there was during saving
+    #Checking if user stops in an error move
+    if len(coorderrorList)!=0:
+        #Getting the coordinates of last error
+        for coord in coorderrorList:
+            #Checking if the value is not a clue
+            if coord not in get_values_coord(gridsdkboard):
+                #erasing it inside of the grid
+                gridnp[coord[0], coord[1]]=0
+                break
     #Converting every list into a json treatable data
     gridL=gridnp.astype(int).tolist()
-    #Init a new coord error list
-    new_coorderrorl=[]
-    for coord in coorderrorList:
-        new_coorderrorl.append((int(coord[0]), int(coord[1])))
     #Storing every game information in a dictionary
     save_data={
         "gridname":"Lastgrid", 
-        "gridsdkboard":list(gridsdkboard) ,
+        "gridsdkboard":list(gridsdkboard),
         "gridl":gridL, 
-        "user_pos":list(user_pos), 
         "error_count":error_count, 
         "ids_txt":ids_text, 
         "ids_cells":ids_cells,
-        "ids_notes":ids_notes,
-        "coorderrorlist":new_coorderrorl, 
+        "ids_notes":ids_notes, 
         "minute":minutes, "seconds":seconds, 
         "difficulty":difficulty
         }
@@ -43,3 +47,6 @@ def save_state(gridsdkboard:list, gridnp:np.ndarray, user_pos:list[tuple[int]], 
     with open("savesfiles/save_state.json","w") as f:
         #converting the python object to a json 
         f.write(json.dumps(save_data, indent=4))
+
+def save_grid(gridsdkboard: list, gridnp:np.ndarray):
+    pass
