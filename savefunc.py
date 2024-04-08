@@ -46,7 +46,37 @@ def save_state(gridsdkboard:list, gridnp:np.ndarray, error_count:int, ids_text:d
     #Create a file in format JSON that will stock the game data
     with open("savesfiles/save_state.json","w") as f:
         #converting the python object to a json 
-        f.write(json.dumps(save_data, indent=4))
+        f.write(json.dumps(save_data, indent=2))
 
-def save_grid(gridsdkboard: list, gridnp:np.ndarray):
-    pass
+def save_grid(gridsdkboard: list, gridnp:np.ndarray, difficulty:int,  coorderrorList:list[tuple[int]], name:str):
+    """Save the Grid information for the play old ones button in main menu
+
+    Args:
+        gridsdkboard (list): the sudoku grid converted to a list by the board method
+        gridnp (np.ndarray): the sudoku grid converted to a numpy by the converting function
+        difficulty (int): the difficulty percentage
+        coorderrorList (list[tuple[int]]): the list of coordinates of errors in grid
+        name (str): the name of the grid
+    """
+    #Erase every error if there was during saving
+    #Checking if user stops in an error move
+    if len(coorderrorList)!=0:
+        #Getting the coordinates of last error
+        for coord in coorderrorList:
+            #Checking if the value is not a clue
+            if coord not in get_values_coord(gridsdkboard):
+                #erasing it inside of the grid
+                gridnp[coord[0], coord[1]]=0
+                break
+    #Converting every list into a json treatable data
+    gridL=gridnp.astype(int).tolist()
+    save_data={
+        "gridname":name,
+        "difficulty":difficulty,
+        "gridsdkboard":list(gridsdkboard),
+        "gridl":gridL,
+    }
+    #Create a file in format JSON that will stock the game data
+    with open("savesfiles/save_grids.json","a") as f:
+        #converting the python object to a json 
+        f.write(json.dumps(save_data, indent=4))

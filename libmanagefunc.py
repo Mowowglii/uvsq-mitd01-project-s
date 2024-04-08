@@ -18,7 +18,7 @@ def get_values_coord(grid:list)->list[tuple[int]]:
     #Searching for int value in the maniable grid
     for line in grid:
         for element in line:
-            if type(element)==int:
+            if type(element)==int and element != 0:
                 #add position in coordinate list
                 coordList.append((grid.index(line), line.index(element)))
     return coordList

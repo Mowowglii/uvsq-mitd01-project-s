@@ -1,6 +1,6 @@
 #Imports
 from mysdkfunc import grid_valid
-from savefunc import save_state
+from savefunc import *
 from libmanagefunc import *
 import sudoku as sdk
 import tkinter as tk
@@ -86,21 +86,22 @@ def usern_selection(number:int):
         for cellid in list(ids_cell.values()):
             #Highlight every cells in green
             playcanv.itemconfig(cellid, fill="#D5F5E3", outline="black")
-            #Stop binding
-            playcanv.unbind('<ButtonPress-1>')
-        #Stop buttons working
-            #Save button
-            sbutton.config(state=tk.DISABLED)
-            #Note Mode Button
-            nbutton.config(state=tk.DISABLED)
-            #Erase button
-            ebutton.config(state=tk.DISABLED)
-            #Loop looking at every widgets in the selection canva
-            for widget in selectbcanv.winfo_children():
-                #Disable every button
-                if isinstance(widget, tk.Button):
-                    widget.config(state=tk.DISABLED)
-            
+        #Stop binding
+        playcanv.unbind('<ButtonPress-1>')
+    #Stop buttons working
+        #Save button
+        sbutton.config(state=tk.DISABLED)
+        #Note Mode Button
+        nbutton.config(state=tk.DISABLED)
+        #Erase button
+        ebutton.config(state=tk.DISABLED)
+        #Loop looking at every widgets in the selection canva
+        for widget in selectbcanv.winfo_children():
+            #Disable every button
+            if isinstance(widget, tk.Button):
+                widget.config(state=tk.DISABLED)
+        #Go to the end game window
+        end_game()
     else:
         #Checking if there is an error in the grid
         if not(get_error_coord(gridnp) is None):
@@ -498,18 +499,72 @@ def game_window_closed():
     #quit the new game window
     new_game_window.destroy()
 
+def endg_quit():
+    """Quit the game window at the end of game"""
+    #Clear every data used for the game
+    ids_cell.clear()
+    ids_pgtxt.clear()
+    u_position=None
+    u_number=None
+    errorcount=0
+    errorlabel.config(text=f"{errorcount} errors")
+    new_game_window.destroy()
+    root.deiconify()
+    #Re-show the root main menu
+    root.deiconify
+    #Destroy new_game_window
+    new_game_window.destroy
+
+def saveandquit(gridsdkboard: list, gridnp:np.ndarray, difficulty:int, coorderrorList:list[tuple[int]], name:str):
+    """Save the grid and quit"""
+    #Saving informations
+    save_grid(gridsdkboard, gridnp, difficulty, coorderrorList, name)
+    #Quit
+    endg_quit()
+
+def set_gridname():
+    """Set the name of the grid"""
+    #Resize the window
+    end_window.geometry("300x115")
+    #Remove every widget on frame
+    congrat.destroy()
+    quit_button.destroy()
+    save_but.destroy()
+    #Updating the window
+    end_window.update()
+    
+    #Create new widgets on window
+    lbl=tk.Label(end_window, text="Enter the name you want for the grid", font=("ClearSans", 12, "bold"))
+    namentry=tk.Entry(end_window, width=32)
+    confirmnands=tk.Button(end_window, text="Confirm and save", font=("ClearSans", 10), command=lambda: (saveandquit(gridl, gridnp, difficulty, coorderrorL, namentry.get())))
+    cancelbut=tk.Button(end_window, text="Cancel", font=("ClearSans", 10), width=8, command=endg_quit)
+    
+    #Display new widgets
+    lbl.grid(row=0, column=0, columnspan=2, padx=10,  pady=5)
+    namentry.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
+    confirmnands.grid(row=2, column=0, padx=10, pady=5)
+    cancelbut.grid(row=2, column=1, padx=10, pady=5)
+
 def end_game():
     """Set the window of end game"""
-    end_window=tk.Toplevel(root)
-    #Setting the display resizement to false
-    end_window.resizable(False)
+    global end_window
+    global congrat
+    global quit_button
+    global save_but
+    end_window=tk.Toplevel(new_game_window)
+    end_window.geometry("225x75")
+    #end_window.resizable(False)
+    end_window.resizable(False, False)
     
     #Widget on window
     congrat=tk.Label(end_window, text="Congratulation You Have Win !", font=("ClearSans", 10, "bold"))
-    quit_button=tk.Button(end_window, text="Quit",command=lambda : (new_game_window.destroy, end_window.destroy))
-    save_but=tk.Button(end_window, text="Save Grid")
+    quit_button=tk.Button(end_window, text="Quit",width=8, command=endg_quit)
+    save_but=tk.Button(end_window, text="Save Grid", command=set_gridname)
     
-    pass
+    #Display on the window
+    congrat.grid(row=0, column=0, columnspan=2, padx=10, pady=5)
+    quit_button.grid(row=1, column=0, padx=10, pady=5)
+    save_but.grid(row=1, column=1, padx=10, pady=5)
 
 def game_window():
     """Create a Sudoku Game Window"""
@@ -567,9 +622,12 @@ def game_window():
     
     #create the list of coordinates for clues
     cList=get_values_coord(gridl)
-    #filling the grid with the clues (to write)
-    for element in cList:
-        display_in_ugrid(element, gridnp[element[0], element[1]])
+    
+    #Create the list containing every values of the grid
+    vList=get_values_coord(gridnp.astype(int).tolist())
+    #filling the grid with every non-zeros cells
+    for coordinate in vList:
+        display_in_ugrid(coordinate, gridnp[coordinate[0], coordinate[1]])
     
     #Filling the grid with every notes
     for coordinate in ids_notes:
