@@ -278,13 +278,16 @@ def time_counter():
     global minutes 
     global seconds
     #Time management (Made by ChatGPT)
-    start_time=time.time() # Get the starting time
+    if defaultminute == 0 and defaultseconds == 0:
+        start_time=time.time() # Get the starting time
+    else:
+        start_time=time.time()-((defaultminute*60)+defaultseconds) #Continue the time already passed
     # Run the chronometer until interrupted
     while grid_valid(gridnp)!=True and new_game_window.winfo_exists():
         elapsed_time = time.time() - start_time  # Calculate elapsed time
         min, sec = divmod(elapsed_time, 60) #Calculate the value of minutes and seconds from the elapsed time
-        minutes = defaultminute+ int(min)#calculate the total minutes player has been playing
-        seconds = defaultseconds + int(sec)#calculate the total secodns player has been playing
+        minutes = int(min)#calculate the total minutes player has been playing
+        seconds = int(sec)#calculate the total secodns player has been playing
         #Display the time on the extracanvas
         if int(minutes) >= 10 and int(seconds) >= 10:
             time_str=f"{int(minutes)}:{int(seconds)}"
