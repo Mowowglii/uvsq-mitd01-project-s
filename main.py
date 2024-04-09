@@ -239,6 +239,17 @@ def diffic_menu():
 
 def initgame():
     """Init game from difficulty menu"""
+    global grid
+    global gridl
+    global gridnp
+    global d_name
+    #Generate a sudoku grid
+    grid=sdk.Sudoku(3, seed=rd.randint(0,sys.maxsize)).difficulty(difficulty)
+    #Setting the grids of interaction
+    gridl=grid.board
+    gridnp=convert_sdk_to_np(grid)
+        #Naming the difficulty
+    d_name=diffic_name(difficulty)
     #Run the Game window
     game_window()
     #Destroy the difficulty menu 
@@ -290,9 +301,6 @@ def load_game():
 def new_game():
     """Set all information for a new game
     """
-    global gridnp
-    global grid
-    global gridl
     global ids_cell
     global ids_pgtxt
     global time_str
@@ -323,13 +331,6 @@ def new_game():
     gridname="New Grid"
     #(default to easy mode)
     difficulty = 0.54
-    #Naming the difficulty
-    d_name=diffic_name(difficulty)
-    #Generate a sudoku grid
-    grid=sdk.Sudoku(3, seed=rd.randint(0,sys.maxsize)).difficulty(difficulty)
-    #Setting the grids of interaction
-    gridl=grid.board
-    gridnp=convert_sdk_to_np(grid)
     diffic_menu()
 
 #About Time
