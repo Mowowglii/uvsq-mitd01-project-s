@@ -261,7 +261,7 @@ def new_game():
     defaultseconds=0
     gridname="New Grid"
     #(default to easy mode)
-    difficulty = 0.54
+    difficulty = 0.02
     #Naming the difficulty
     d_name=diffic_name(difficulty)
     #Generate a sudoku grid
@@ -278,8 +278,9 @@ def time_counter():
     global new_game_window
     global defaultminute
     global defaultseconds
-    global minutes 
+    global minutes
     global seconds
+    global time_str
     #Time management (Made by ChatGPT)
     if defaultminute == 0 and defaultseconds == 0:
         start_time=time.time() # Get the starting time
@@ -515,10 +516,10 @@ def endg_quit():
     #Destroy new_game_window
     new_game_window.destroy
 
-def saveandquit(gridsdkboard: list, gridnp:np.ndarray, difficulty:int, coorderrorList:list[tuple[int]], name:str):
+def saveandquit(gridsdkboard: list, gridnp:np.ndarray, difficulty:int, coorderrorList:list[tuple[int]], name:str, timestr:str):
     """Save the grid and quit"""
     #Saving informations
-    save_grid(gridsdkboard, gridnp, difficulty, coorderrorList, name)
+    save_grid(gridsdkboard, gridnp, difficulty, coorderrorList, name, timestr)
     #Quit
     endg_quit()
 
@@ -536,7 +537,7 @@ def set_gridname():
     #Create new widgets on window
     lbl=tk.Label(end_window, text="Enter the name you want for the grid", font=("ClearSans", 12, "bold"))
     namentry=tk.Entry(end_window, width=32)
-    confirmnands=tk.Button(end_window, text="Confirm and save", font=("ClearSans", 10), command=lambda: (saveandquit(gridl, gridnp, difficulty, coorderrorL, namentry.get())))
+    confirmnands=tk.Button(end_window, text="Confirm and save", font=("ClearSans", 10), command=lambda: (saveandquit(gridl, gridnp, difficulty, coorderrorL, namentry.get(), time_str)))
     cancelbut=tk.Button(end_window, text="Cancel", font=("ClearSans", 10), width=8, command=endg_quit)
     
     #Display new widgets

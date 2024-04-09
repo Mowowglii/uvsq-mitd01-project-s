@@ -1,6 +1,7 @@
 #Imports
 from libmanagefunc import get_values_coord
 import json
+import os
 import numpy as np
 
 def save_state(gridsdkboard:list, gridnp:np.ndarray, error_count:int, ids_text:dict, ids_cells:dict, ids_notes:dict, coorderrorList:list[tuple[int]], minutes:int, seconds:int, difficulty:float):
@@ -48,7 +49,7 @@ def save_state(gridsdkboard:list, gridnp:np.ndarray, error_count:int, ids_text:d
         #converting the python object to a json 
         f.write(json.dumps(save_data, indent=2))
 
-def save_grid(gridsdkboard: list, gridnp:np.ndarray, difficulty:int,  coorderrorList:list[tuple[int]], name:str):
+def save_grid(gridsdkboard: list, gridnp:np.ndarray, difficulty:int,  coorderrorList:list[tuple[int]], name:str, timestr=str):
     """Save the Grid information for the play old ones button in main menu
 
     Args:
@@ -57,6 +58,7 @@ def save_grid(gridsdkboard: list, gridnp:np.ndarray, difficulty:int,  coorderror
         difficulty (int): the difficulty percentage
         coorderrorList (list[tuple[int]]): the list of coordinates of errors in grid
         name (str): the name of the grid
+        timestr (str): the time needed by the user to complete the grid
     """
     #Erase every error if there was during saving
     #Checking if user stops in an error move
@@ -73,10 +75,21 @@ def save_grid(gridsdkboard: list, gridnp:np.ndarray, difficulty:int,  coorderror
     save_data={
         "gridname":name,
         "difficulty":difficulty,
+        "time":timestr,
         "gridsdkboard":list(gridsdkboard),
         "gridl":gridL,
     }
-    #Create a file in format JSON that will stock the game data
-    with open("savesfiles/save_grids.json","a") as f:
-        #converting the python object to a json 
-        f.write(json.dumps(save_data, indent=4))
+    #Checking if the save file already created
+    if os.path.exists("savesfiles/save_grids.json") == False:
+        #create the file
+        with open("savesfiles/save_grids.json","w") as file:
+            file.write("[\n")
+            file.write("]")
+    with open("savesfiles/save_grids.json","r") as f:
+        #Recover the data
+        saveL=json.loads(f.read())
+    #Modify the saving list
+    saveL.append(save_data)
+    #Open the file in writing mode and inject the new save list
+    with open("savesfiles/save_grids.json","w") as fi:
+        fi.write(json.dumps(saveL, indent=4))
