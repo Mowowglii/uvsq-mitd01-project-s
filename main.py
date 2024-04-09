@@ -119,6 +119,8 @@ def usern_selection(number:int):
                 playcanv.itemconfig(idc, fill="#F1948A", outline="black")
 
 #Display or GUI Functions
+
+#About Notes
 def erase_note(position:tuple[int],usern:int):
     """Erase individualy the note of a value in a cell
 
@@ -157,6 +159,7 @@ def inject_note(position:tuple[int], usern:int):
     #Catch the id in a temporary dictionary
     ids_notes[str(position)].update({str(usern):noteid})
 
+#About Difficulty
 def diffic_name(difficulty:float)->str:
     """Gives the difficulty following the blank/total cells ratio 
     All About Difficulty:
@@ -184,6 +187,64 @@ def diffic_name(difficulty:float)->str:
     else:
         return "Personalized Difficulty"
 
+def diff_select(percentage:float):
+    """Set the difficulty of the grid
+
+    Args:
+        percentage (float): the precentage of difficulty
+    """
+    global difficulty
+    #Verify that percentage are valable
+    assert percentage <= 0.80 and percentage >= 0.54
+    difficulty=percentage
+    #Display in window
+    diffselec.config(text=f"{diffic_name(difficulty)} Selected", font=("ClearSans", 8))
+
+def diffic_menu():
+    """Configuration of the Choosing Difficulty Menu"""
+    global diffmenu
+    global diffselec
+    #Creating the window
+    diffmenu=tk.Toplevel(root)
+    diffmenu.geometry("300x325")
+    
+    #Diffmenu configuration
+    diffmenu.grid_propagate(False)
+    diffmenu.resizable(False, False)
+    
+    #Diffmenu grid configuration
+    diffmenu.grid_columnconfigure(1, weight=2)
+    
+    #Creating widgets on window
+    namelabel=tk.Label(diffmenu, text="Choose Difficulty", font=("ClearSans", 10, "bold"))
+    diff1=tk.Button(diffmenu, text="Easy Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#DAF7A6",command=lambda:diff_select(0.54))
+    diff2=tk.Button(diffmenu, text="Medium Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#FFC300",command=lambda:diff_select(0.63))
+    diff3=tk.Button(diffmenu, text="Hard Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#FF5733",command=lambda:diff_select(0.65))
+    diff4=tk.Button(diffmenu, text="Very Hard Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#C70039",command=lambda:diff_select(0.73))
+    diff5=tk.Button(diffmenu, text="God Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#900C3F",command=lambda:diff_select(0.80))
+    confirmbut=tk.Button(diffmenu, text="Confirm", font=("ClearSans", 8), width=10, height=2,command=initgame)
+    cancel=tk.Button(diffmenu, text="Cancel", font=("ClearSans", 8), width=10, height=2, command=diffmenu.destroy)
+    diffselec=tk.Label(diffmenu, text=f"{diffic_name(difficulty)} Selected", font=("ClearSans", 8))
+    
+    #Display widgets in window
+    namelabel.grid(row=0, column=1, padx=5, pady=5)
+    diff1.grid(row=1, column=1, padx=5, pady=5)
+    diff2.grid(row=2, column=1, padx=5, pady=5)
+    diff3.grid(row=3, column=1, padx=5, pady=5)
+    diff4.grid(row=4, column=1, padx=5, pady=5)
+    diff5.grid(row=5, column=1, padx=5, pady=5)
+    diffselec.grid(row=6, column=1, padx=5, pady=5)
+    confirmbut.grid(row=6, column=2, padx=5, pady=5)
+    cancel.grid(row=6, column=0, padx=5, pady=5)
+
+def initgame():
+    """Init game from difficulty menu"""
+    #Run the Game window
+    game_window()
+    #Destroy the difficulty menu 
+    diffmenu.destroy()
+
+#About Init of Game Window
 def load_game():
     """Set all information for a loaded game
     """
@@ -261,7 +322,7 @@ def new_game():
     defaultseconds=0
     gridname="New Grid"
     #(default to easy mode)
-    difficulty = 0.02
+    difficulty = 0.54
     #Naming the difficulty
     d_name=diffic_name(difficulty)
     #Generate a sudoku grid
@@ -269,8 +330,9 @@ def new_game():
     #Setting the grids of interaction
     gridl=grid.board
     gridnp=convert_sdk_to_np(grid)
-    game_window()
+    diffic_menu()
 
+#About Time
 def time_counter():
     """Chronometer setting the time passed since the start of the game (made by ChatGPT)
     """
@@ -307,6 +369,7 @@ def time_counter():
         if not(new_game_window.winfo_exists()):
             return
 
+#About display on Game Window
 def default_highlight_cell(coordinate:tuple[int]):
     """Highlight the cells in the same column, line and region of the user position
 
@@ -500,6 +563,7 @@ def game_window_closed():
     #quit the new game window
     new_game_window.destroy()
 
+#About end of the Game
 def endg_quit():
     """Quit the game window at the end of game"""
     #Clear every data used for the game
@@ -567,6 +631,7 @@ def end_game():
     quit_button.grid(row=1, column=0, padx=10, pady=5)
     save_but.grid(row=1, column=1, padx=10, pady=5)
 
+#Principal Game Window
 def game_window():
     """Create a Sudoku Game Window"""
     global root
@@ -735,5 +800,6 @@ loadgb.grid(row=2 ,column=1, pady=5)
 playoldb.grid(row=3, column=1, pady=5)
 quitb.grid(row=4, column=0, padx=10, pady=10)
 menuloc.grid(row=4, column=2, sticky="SE")
+#Clearing the cache
 root.protocol("WM_DELETE_WINDOW", shutil.rmtree("__pycache__"))
 root.mainloop()
