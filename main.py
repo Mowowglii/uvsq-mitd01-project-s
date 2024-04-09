@@ -1,7 +1,7 @@
 #Imports
 from mysdkfunc import grid_valid
 from savefunc import *
-from libmanagefunc import *
+from liblinkfunc import *
 import sudoku as sdk
 import tkinter as tk
 from tkinter import messagebox

@@ -1,5 +1,5 @@
 #Imports
-from libmanagefunc import get_values_coord
+from liblinkfunc import get_values_coord
 import json
 import os
 import numpy as np
