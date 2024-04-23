@@ -49,7 +49,7 @@ def save_state(gridsdkboard:list, gridnp:np.ndarray, error_count:int, ids_text:d
         #converting the python object to a json 
         f.write(json.dumps(save_data, indent=2))
 
-def save_grid(gridsdkboard: list, gridnp:np.ndarray, difficulty:int,  coorderrorList:list[tuple[int]], name:str, timestr=str):
+def save_grid(gridsdkboard: list, difficulty:int,  coorderrorList:list[tuple[int]], name:str, timestr=str):
     """Save the Grid information for the play old ones button in main menu
 
     Args:
@@ -60,24 +60,11 @@ def save_grid(gridsdkboard: list, gridnp:np.ndarray, difficulty:int,  coorderror
         name (str): the name of the grid
         timestr (str): the time needed by the user to complete the grid
     """
-    #Erase every error if there was during saving
-    #Checking if user stops in an error move
-    if len(coorderrorList)!=0:
-        #Getting the coordinates of last error
-        for coord in coorderrorList:
-            #Checking if the value is not a clue
-            if coord not in get_values_coord(gridsdkboard):
-                #erasing it inside of the grid
-                gridnp[coord[0], coord[1]]=0
-                break
-    #Converting every list into a json treatable data
-    gridL=gridnp.astype(int).tolist()
     save_data={
         "gridname":name,
         "difficulty":difficulty,
         "time":timestr,
         "gridsdkboard":list(gridsdkboard),
-        "gridl":gridL,
     }
     #Checking if the save file already created
     if os.path.exists("savesfiles/save_grids.json") == False:

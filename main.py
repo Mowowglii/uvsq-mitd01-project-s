@@ -5,11 +5,10 @@ from liblinkfunc import *
 import sudoku as sdk
 import tkinter as tk
 from tkinter import messagebox
-import shutil
 import sys
 import time
 import threading
-import json
+import json as js
 
 #Init the variable containing time in display
 time_str=""
@@ -238,7 +237,7 @@ def diffic_menu():
     cancel.grid(row=6, column=0, padx=5, pady=5)
 
 def initgame():
-    """Init game from difficulty menu"""
+    """Init game window from difficulty menu"""
     global grid
     global gridl
     global gridnp
@@ -277,8 +276,7 @@ def load_game():
     global ids_notes
     #Recover the saved data
     with open("savesfiles/save_state.json", "r") as f:
-        data_in_json=f.read()
-    savedata=json.loads(data_in_json)
+        savedata=js.load(f)
     #Loading every games informations
     gridname = savedata["gridname"]
     grid = sdk.Sudoku(3,3, board=savedata["gridsdkboard"])
@@ -333,6 +331,87 @@ def new_game():
     difficulty = 0.54
     diffic_menu()
 
+def pre_load_save(event=tk.Event):
+    """Pre-load the saved level user wants to laod from listbox selection"""
+#Setting basic information of game
+    #Setting informations of the game
+    #Setting global Dictionary or List
+    #Setting a dictionary to store the IDs of play grid texts
+    ids_pgtxt={}
+    ids_cell={}
+    ids_notes={}
+
+    #Setting global game variables
+    u_position=(0,0)
+    u_number=None
+    coorderrorL=[]
+    errorcount=0
+    defaultminute=0
+    defaultseconds=0
+#Setting loaded informations of game
+    #Recover everything to load
+    gridname = gridinfL[listbox.curselection()[0]]["gridname"]
+    difficulty = gridinfL[listbox.curselection()[0]]["difficulty"]
+    d_name = diffic_name(difficulty)
+    grid = sdk.Sudoku(3, 3, board=gridinfL[listbox.curselection()[0]]["gridsdkboard"])
+    
+    difficultylabel.config(text=f"Difficulty : {d_name}", font=("ClearSans", 10))
+    besttimealabel.config(text=f"Best Time : {gridinfL[listbox.curselection()[0]]['time']}", font=("ClearSans", 10))
+
+def play_old_menu(savepath:str):
+    """Configuration of the play old menu 
+
+    Args:
+        savepath (str): path of the saved grid user wants to replay
+    """
+    global difficultylabel
+    global besttimealabel
+    global root
+    global listbox
+    global gridinfL
+    #Load the saves
+    with open(savepath, "r") as file:
+        #Catch the list containing all the informations about grid
+        gridinfL = js.load(file)
+
+    #Creating a new window
+    play_old_m = tk.Toplevel(root)
+    
+    #Configure the window
+    play_old_m.geometry("500x500")
+    play_old_m.resizable(False, False)
+    
+    #Widgets on window
+    frame=tk.Frame(play_old_m, height=500, width=500)
+    
+    #Frame display configuration
+    frame.grid_propagate(False)
+    for i in range(4):
+        frame.grid_rowconfigure(i, weight=1)
+        frame.grid_columnconfigure(i, weight=1)
+    #Display on frame
+    frame.grid()
+    
+    #Widgets on frame
+    listbox = tk.Listbox(frame, selectmode="single", relief="sunken", height=18, width=40, bd=3, font=("ClearSans", 14, "bold"), selectbackground="#797979", selectforeground="#000000", activestyle="none", highlightthickness=0)
+    returnbutton = tk.Button(frame, text="Return", font=("ClearSans", 12), relief="groove")
+    confirmbutton = tk.Button(frame, text="Confirm", font=("ClearSans", 12), relief="groove")
+    difficultylabel = tk.Label(frame, text="Difficulty : ---", font=("ClearSans", 10))
+    besttimealabel = tk.Label(frame, text="Best Time : --:--", font=("ClearSans", 10))
+    
+    #Filling the listbox
+    for i in range(len(gridinfL)):
+        listbox.insert(i, gridinfL[i]["gridname"])
+    
+    #Display on frame
+    listbox.grid(row=0, column=0, rowspan=3,columnspan=4)
+    returnbutton.grid(row=3, column=0, padx=10, pady=10)
+    difficultylabel.grid(row=3, column=1, padx=10, pady=10)
+    besttimealabel.grid(row=3, column=2, padx=10, pady=10)
+    confirmbutton.grid(row=3, column=3, padx=10, pady=10)
+    
+    #Create a binding for listbox selection
+    listbox.bind("<<ListboxSelect>>", pre_load_save)
 #About Time
 def time_counter():
     """Chronometer setting the time passed since the start of the game (made by ChatGPT)
@@ -584,7 +663,7 @@ def endg_quit():
 def saveandquit(gridsdkboard: list, gridnp:np.ndarray, difficulty:int, coorderrorList:list[tuple[int]], name:str, timestr:str):
     """Save the grid and quit"""
     #Saving informations
-    save_grid(gridsdkboard, gridnp, difficulty, coorderrorList, name, timestr)
+    save_grid(gridsdkboard, difficulty, coorderrorList, name, timestr)
     #Quit
     endg_quit()
 
@@ -660,7 +739,7 @@ def game_window():
     #Setting New Game Window
     new_game_window.resizable(False,False)
     new_game_window.title("Sudoku Game")
-
+    
     #Frame on New Game Window
     newg_frame=tk.Frame(new_game_window, width=1000, height=750)
     newg_frame.grid()
@@ -788,7 +867,7 @@ menuframe.grid()
 titlemenu=tk.Label(menuframe, text="Sudoku Game ", font=("tahoma", 14, "bold"), anchor="center")
 newgb=tk.Button(menuframe, text="New Game", padx=5, pady=5, command=new_game)
 loadgb=tk.Button(menuframe, text="Load Game", padx=5, pady=5, command=load_game)
-playoldb=tk.Button(menuframe, text="Play Old Ones", padx=5, pady=5)
+playoldb=tk.Button(menuframe, text="Play Old Ones", padx=5, pady=5, command= lambda : play_old_menu("savesfiles/save_grids.json"))
 quitb=tk.Button(menuframe, text="Quit", command=root.quit, padx=5, pady=5)
 menuloc=tk.Label(menuframe, text="Menu", font=("tahoma", 8, "italic"))
 msgbox=tk.Message()
@@ -801,6 +880,4 @@ loadgb.grid(row=2 ,column=1, pady=5)
 playoldb.grid(row=3, column=1, pady=5)
 quitb.grid(row=4, column=0, padx=10, pady=10)
 menuloc.grid(row=4, column=2, sticky="SE")
-#Clearing the cache
-root.protocol("WM_DELETE_WINDOW", shutil.rmtree("__pycache__"))
 root.mainloop()
