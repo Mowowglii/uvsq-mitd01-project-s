@@ -203,6 +203,10 @@ def diffic_menu():
     """Configuration of the Choosing Difficulty Menu"""
     global diffmenu
     global diffselec
+    
+    #iconify the root menu
+    root.iconify()
+    
     #Creating the window
     diffmenu=tk.Toplevel(root)
     diffmenu.geometry("300x325")
@@ -222,7 +226,7 @@ def diffic_menu():
     diff4=tk.Button(diffmenu, text="Very Hard Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#C70039",command=lambda:diff_select(0.73))
     diff5=tk.Button(diffmenu, text="God Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#900C3F",command=lambda:diff_select(0.80))
     confirmbut=tk.Button(diffmenu, text="Confirm", font=("ClearSans", 8), width=10, height=2,command=initgame)
-    cancel=tk.Button(diffmenu, text="Cancel", font=("ClearSans", 8), width=10, height=2, command=diffmenu.destroy)
+    cancel=tk.Button(diffmenu, text="Cancel", font=("ClearSans", 8), width=10, height=2, command=lambda : (diffmenu.destroy(), root.deiconify()))
     diffselec=tk.Label(diffmenu, text=f"{diffic_name(difficulty)} Selected", font=("ClearSans", 8))
     
     #Display widgets in window
@@ -333,6 +337,22 @@ def new_game():
 
 def pre_load_save(event=tk.Event):
     """Pre-load the saved level user wants to laod from listbox selection"""
+    global gridnp
+    global grid
+    global gridl
+    global ids_cell
+    global ids_pgtxt
+    global time_str
+    global u_position
+    global u_number
+    global coorderrorL
+    global errorcount
+    global defaultminute
+    global defaultseconds
+    global difficulty
+    global gridname
+    global d_name
+    global ids_notes
 #Setting basic information of game
     #Setting informations of the game
     #Setting global Dictionary or List
@@ -354,8 +374,11 @@ def pre_load_save(event=tk.Event):
     difficulty = gridinfL[listbox.curselection()[0]]["difficulty"]
     d_name = diffic_name(difficulty)
     grid = sdk.Sudoku(3, 3, board=gridinfL[listbox.curselection()[0]]["gridsdkboard"])
-    
+    gridl = grid.board
+    gridnp = convert_sdk_to_np(grid)
+#Update display for the user to have information of the puzzle
     difficultylabel.config(text=f"Difficulty : {d_name}", font=("ClearSans", 10))
+    errorlab.config(text=f"Errors : {gridinfL[listbox.curselection()[0]]['errors']}")
     besttimealabel.config(text=f"Best Time : {gridinfL[listbox.curselection()[0]]['time']}", font=("ClearSans", 10))
 
 def play_old_menu(savepath:str):
@@ -369,46 +392,54 @@ def play_old_menu(savepath:str):
     global root
     global listbox
     global gridinfL
+    global errorlab
+    
     #Load the saves
     with open(savepath, "r") as file:
         #Catch the list containing all the informations about grid
         gridinfL = js.load(file)
 
+    #iconify the root menu
+    root.iconify()
+    
     #Creating a new window
     play_old_m = tk.Toplevel(root)
     
     #Configure the window
-    play_old_m.geometry("500x500")
+    play_old_m.geometry("600x500")
     play_old_m.resizable(False, False)
     
     #Widgets on window
-    frame=tk.Frame(play_old_m, height=500, width=500)
+    frame=tk.Frame(play_old_m, height=500, width=600)
     
     #Frame display configuration
     frame.grid_propagate(False)
     for i in range(4):
         frame.grid_rowconfigure(i, weight=1)
-        frame.grid_columnconfigure(i, weight=1)
+    for j in range(5):
+        frame.grid_columnconfigure(j, weight=1)
     #Display on frame
     frame.grid()
     
     #Widgets on frame
     listbox = tk.Listbox(frame, selectmode="single", relief="sunken", height=18, width=40, bd=3, font=("ClearSans", 14, "bold"), selectbackground="#797979", selectforeground="#000000", activestyle="none", highlightthickness=0)
-    returnbutton = tk.Button(frame, text="Return", font=("ClearSans", 12), relief="groove")
-    confirmbutton = tk.Button(frame, text="Confirm", font=("ClearSans", 12), relief="groove")
+    returnbutton = tk.Button(frame, text="Return", font=("ClearSans", 12), relief="groove", command=lambda : (play_old_m.destroy(), root.deiconify()))
+    confirmbutton = tk.Button(frame, text="Confirm", font=("ClearSans", 12), relief="groove", command=lambda : (game_window() , play_old_m.destroy()))
     difficultylabel = tk.Label(frame, text="Difficulty : ---", font=("ClearSans", 10))
     besttimealabel = tk.Label(frame, text="Best Time : --:--", font=("ClearSans", 10))
+    errorlab = tk.Label(frame, text="Errors : --", font=("ClearSans", 10))
     
     #Filling the listbox
     for i in range(len(gridinfL)):
         listbox.insert(i, gridinfL[i]["gridname"])
     
     #Display on frame
-    listbox.grid(row=0, column=0, rowspan=3,columnspan=4)
+    listbox.grid(row=0, column=0, rowspan=3,columnspan=5)
     returnbutton.grid(row=3, column=0, padx=10, pady=10)
     difficultylabel.grid(row=3, column=1, padx=10, pady=10)
-    besttimealabel.grid(row=3, column=2, padx=10, pady=10)
-    confirmbutton.grid(row=3, column=3, padx=10, pady=10)
+    errorlab.grid(row=3, column=2, padx=10, pady=10)
+    besttimealabel.grid(row=3, column=3, padx=10, pady=10)
+    confirmbutton.grid(row=3, column=4, padx=10, pady=10)
     
     #Create a binding for listbox selection
     listbox.bind("<<ListboxSelect>>", pre_load_save)
@@ -660,10 +691,10 @@ def endg_quit():
     #Destroy new_game_window
     new_game_window.destroy
 
-def saveandquit(gridsdkboard: list, gridnp:np.ndarray, difficulty:int, coorderrorList:list[tuple[int]], name:str, timestr:str):
+def saveandquit(gridsdkboard: list, difficulty:int, errorcount:int, name:str, timestr:str):
     """Save the grid and quit"""
     #Saving informations
-    save_grid(gridsdkboard, difficulty, coorderrorList, name, timestr)
+    save_grid(gridsdkboard, difficulty, errorcount, name, timestr)
     #Quit
     endg_quit()
 
@@ -681,7 +712,7 @@ def set_gridname():
     #Create new widgets on window
     lbl=tk.Label(end_window, text="Enter the name you want for the grid", font=("ClearSans", 12, "bold"))
     namentry=tk.Entry(end_window, width=32)
-    confirmnands=tk.Button(end_window, text="Confirm and save", font=("ClearSans", 10), command=lambda: (saveandquit(gridl, gridnp, difficulty, coorderrorL, namentry.get(), time_str)))
+    confirmnands=tk.Button(end_window, text="Confirm and save", font=("ClearSans", 10), command=lambda: (saveandquit(gridl, difficulty, errorcount, namentry.get(), time_str)))
     cancelbut=tk.Button(end_window, text="Cancel", font=("ClearSans", 10), width=8, command=endg_quit)
     
     #Display new widgets
@@ -743,7 +774,7 @@ def game_window():
     #Frame on New Game Window
     newg_frame=tk.Frame(new_game_window, width=1000, height=750)
     newg_frame.grid()
-    
+        
     #Widgets on Frame
     playcanv=tk.Canvas(newg_frame, width=702, height=702, borderwidth=5, relief="sunken")
     selectbcanv=tk.Canvas(newg_frame, width=225, height=225, borderwidth=5, relief="sunken")

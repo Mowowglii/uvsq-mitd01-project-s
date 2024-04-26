@@ -49,20 +49,21 @@ def save_state(gridsdkboard:list, gridnp:np.ndarray, error_count:int, ids_text:d
         #converting the python object to a json 
         f.write(json.dumps(save_data, indent=2))
 
-def save_grid(gridsdkboard: list, difficulty:int,  coorderrorList:list[tuple[int]], name:str, timestr=str):
+def save_grid(gridsdkboard: list, difficulty:int,errorcount:int, name:str, timestr=str):
     """Save the Grid information for the play old ones button in main menu
 
     Args:
         gridsdkboard (list): the sudoku grid converted to a list by the board method
         gridnp (np.ndarray): the sudoku grid converted to a numpy by the converting function
         difficulty (int): the difficulty percentage
-        coorderrorList (list[tuple[int]]): the list of coordinates of errors in grid
+        errorcount (str): the number of error done by the user
         name (str): the name of the grid
         timestr (str): the time needed by the user to complete the grid
     """
     save_data={
         "gridname":name,
         "difficulty":difficulty,
+        "errors":errorcount,
         "time":timestr,
         "gridsdkboard":list(gridsdkboard),
     }
