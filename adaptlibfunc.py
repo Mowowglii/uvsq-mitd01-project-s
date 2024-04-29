@@ -1,4 +1,4 @@
-from mysdkfunc import *
+from mygamefunct import *
 import numpy as np
 import sudoku as sdk
 

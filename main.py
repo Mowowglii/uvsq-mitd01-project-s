@@ -1,7 +1,7 @@
 #Imports
-from mysdkfunc import grid_valid
+from mygamefunct import grid_valid
 from savefunc import *
-from liblinkfunc import *
+from adaptlibfunc import *
 import sudoku as sdk
 import tkinter as tk
 from tkinter import messagebox
@@ -147,7 +147,7 @@ def inject_note(position:tuple[int], usern:int):
     #Recovering the cell x0 and y0 position in canva (px)
     casexpos=position[1]*(canvx/9)
     caseypos=position[0]*(canvy/9)
-    #Calculate the pixel position of a text in a cell (Formulas given by ChatGPT)
+    #Calculate the pixel position of a text in a cell (Formulas given by an AI)
     xtextincell = ((((usern-1)%3)+1)/4)*(canvx/9)
     ytextincell = (int((usern+2)/3)/4)*(canvy/9)
     #Calculate the pixel position of text in canvas
@@ -197,7 +197,7 @@ def diff_select(percentage:float):
     assert percentage <= 0.80 and percentage >= 0.54
     difficulty=percentage
     #Display in window
-    diffselec.config(text=f"{diffic_name(difficulty)} Selected", font=("ClearSans", 8))
+    diffselec.config(text=f"{diffic_name(difficulty)} Selected", font=("tahoma", 8))
 
 def diffic_menu():
     """Configuration of the Choosing Difficulty Menu"""
@@ -219,15 +219,15 @@ def diffic_menu():
     diffmenu.grid_columnconfigure(1, weight=2)
     
     #Creating widgets on window
-    namelabel=tk.Label(diffmenu, text="Choose Difficulty", font=("ClearSans", 10, "bold"))
-    diff1=tk.Button(diffmenu, text="Easy Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#DAF7A6",command=lambda:diff_select(0.54))
-    diff2=tk.Button(diffmenu, text="Medium Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#FFC300",command=lambda:diff_select(0.63))
-    diff3=tk.Button(diffmenu, text="Hard Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#FF5733",command=lambda:diff_select(0.65))
-    diff4=tk.Button(diffmenu, text="Very Hard Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#C70039",command=lambda:diff_select(0.73))
-    diff5=tk.Button(diffmenu, text="God Mode", font=("ClearSans", 8, "bold"), width=15, height=2, bg="#900C3F",command=lambda:diff_select(0.80))
-    confirmbut=tk.Button(diffmenu, text="Confirm", font=("ClearSans", 8), width=10, height=2,command=initgame)
-    cancel=tk.Button(diffmenu, text="Cancel", font=("ClearSans", 8), width=10, height=2, command=lambda : (diffmenu.destroy(), root.deiconify()))
-    diffselec=tk.Label(diffmenu, text=f"{diffic_name(difficulty)} Selected", font=("ClearSans", 8))
+    namelabel=tk.Label(diffmenu, text="Choose Difficulty", font=("tahoma", 10, "bold"))
+    diff1=tk.Button(diffmenu, text="Easy Mode", font=("tahoma", 8, "bold"), width=15, height=2, bg="#DAF7A6",command=lambda:diff_select(0.54))
+    diff2=tk.Button(diffmenu, text="Medium Mode", font=("tahoma", 8, "bold"), width=15, height=2, bg="#FFC300",command=lambda:diff_select(0.63))
+    diff3=tk.Button(diffmenu, text="Hard Mode", font=("tahoma", 8, "bold"), width=15, height=2, bg="#FF5733",command=lambda:diff_select(0.65))
+    diff4=tk.Button(diffmenu, text="Very Hard Mode", font=("tahoma", 8, "bold"), width=15, height=2, bg="#C70039",command=lambda:diff_select(0.73))
+    diff5=tk.Button(diffmenu, text="God Mode", font=("tahoma", 8, "bold"), width=15, height=2, bg="#900C3F",command=lambda:diff_select(0.80))
+    confirmbut=tk.Button(diffmenu, text="Confirm", font=("tahoma", 8), width=10, height=2,command=initgame)
+    cancel=tk.Button(diffmenu, text="Cancel", font=("tahoma", 8), width=10, height=2, command=lambda : (diffmenu.destroy(), root.deiconify()))
+    diffselec=tk.Label(diffmenu, text=f"{diffic_name(difficulty)} Selected", font=("tahoma", 8))
     
     #Display widgets in window
     namelabel.grid(row=0, column=1, padx=5, pady=5)
@@ -377,9 +377,9 @@ def pre_load_save(event=tk.Event):
     gridl = grid.board
     gridnp = convert_sdk_to_np(grid)
 #Update display for the user to have information of the puzzle
-    difficultylabel.config(text=f"Difficulty : {d_name}", font=("ClearSans", 10))
-    errorlab.config(text=f"Errors : {gridinfL[listbox.curselection()[0]]['errors']}")
-    besttimealabel.config(text=f"Best Time : {gridinfL[listbox.curselection()[0]]['time']}", font=("ClearSans", 10))
+    difficultylabel.config(text=f"Difficulty : {d_name}", font=("tahoma", 12))
+    errorlab.config(text=f"Errors : {gridinfL[listbox.curselection()[0]]['errors']}", font=("tahoma", 12))
+    besttimealabel.config(text=f"Best Time : {gridinfL[listbox.curselection()[0]]['time']}", font=("tahoma", 12))
 
 def play_old_menu(savepath:str):
     """Configuration of the play old menu 
@@ -422,12 +422,12 @@ def play_old_menu(savepath:str):
     frame.grid()
     
     #Widgets on frame
-    listbox = tk.Listbox(frame, selectmode="single", relief="sunken", height=18, width=40, bd=3, font=("ClearSans", 14, "bold"), selectbackground="#797979", selectforeground="#000000", activestyle="none", highlightthickness=0)
-    returnbutton = tk.Button(frame, text="Return", font=("ClearSans", 12), relief="groove", command=lambda : (play_old_m.destroy(), root.deiconify()))
-    confirmbutton = tk.Button(frame, text="Confirm", font=("ClearSans", 12), relief="groove", command=lambda : (game_window() , play_old_m.destroy()))
-    difficultylabel = tk.Label(frame, text="Difficulty : ---", font=("ClearSans", 10))
-    besttimealabel = tk.Label(frame, text="Best Time : --:--", font=("ClearSans", 10))
-    errorlab = tk.Label(frame, text="Errors : --", font=("ClearSans", 10))
+    listbox = tk.Listbox(frame, selectmode="single", relief="sunken", height=18, width=40, bd=3, font=("tahoma", 14, "bold"), selectbackground="#797979", selectforeground="#000000", activestyle="none", highlightthickness=0)
+    returnbutton = tk.Button(frame, text="Return", font=("tahoma", 12), relief="groove", command=lambda : (play_old_m.destroy(), root.deiconify()))
+    confirmbutton = tk.Button(frame, text="Confirm", font=("tahoma", 12), relief="groove", command=lambda : (game_window() , play_old_m.destroy()))
+    difficultylabel = tk.Label(frame, text="Difficulty : ---", font=("tahoma", 10))
+    besttimealabel = tk.Label(frame, text="Best Time : --:--", font=("tahoma", 10))
+    errorlab = tk.Label(frame, text="Errors : --", font=("tahoma", 10))
     
     #Filling the listbox
     for i in range(len(gridinfL)):
@@ -445,7 +445,7 @@ def play_old_menu(savepath:str):
     listbox.bind("<<ListboxSelect>>", pre_load_save)
 #About Time
 def time_counter():
-    """Chronometer setting the time passed since the start of the game (made by ChatGPT)
+    """Chronometer setting the time passed since the start of the game (made by an AI)
     """
     global timelabel
     global new_game_window
@@ -454,7 +454,7 @@ def time_counter():
     global minutes
     global seconds
     global time_str
-    #Time management (Made by ChatGPT)
+    #Time management (Made by an AI)
     if defaultminute == 0 and defaultseconds == 0:
         start_time=time.time() # Get the starting time
     else:
@@ -857,7 +857,7 @@ def game_window():
     errorlabel=tk.Label(extracanv, text=f"{errorcount} errors", font=("CleanSans", 10, "bold"))
     
     #Updating the time display in background
-    # Start the time counter function in a separate thread (Every code lines in link with time has been made by Chatgpt)
+    # Start the time counter function in a separate thread (Every code lines in link with time has been made by an AI)
     time_counter_thread = threading.Thread(target=time_counter)
     time_counter_thread.start()
     
