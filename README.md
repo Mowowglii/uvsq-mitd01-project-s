@@ -15,7 +15,7 @@ This project aims to provide a clean and enjoyable Sudoku gaming experience.
 
 To run the Sudoku game locally, follow these steps:
 
-- Clone this repository to your local machine using git clone https://github.com/your-username/sudoku-game.git.
+- Clone this repository to your local machine using git clone [https://github.com/your-username/sudoku-game.git](https://github.com/Mowowglii/uvsq-mitd01-project-s.git).
 - Navigate to the project directory.
 - Download and install py-sudoku, which is a open source python library created by Jeffsieu (here's the link python project : [py-sudoku](https://pypi.org/project/py-sudoku/))
 
